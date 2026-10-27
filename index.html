@@ -1,0 +1,1434 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><script>(function(){var I='2026-10-31';function c(){try{fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(v){if(v&&v.date&&v.date>I&&location.search.indexOf('v='+v.date)<0)location.replace(location.pathname+'?v='+v.date)}).catch(function(){})}catch(e){}}c();addEventListener('pageshow',function(e){if(e.persisted)c()});document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')c()});})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dawn 晨讯</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap"></noscript>
+<style>
+/* Layout: a morning wire. Masthead with world clocks, a "today's three" strip, a week agenda, then one column of regional desks; a fixed audio bar reads the whole brief aloud. */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#121a24; --muted:#586474; --rule:#d3dae2;
+  --accent:#2448b8; --accent-soft:#e3e9fb; --onair:#b97a06; --onair-soft:#fbf0d9;
+  --ctx:#f4f6f9;
+  --f-display:"Noto Serif SC","Songti SC","SimSun",serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf1; --muted:#93a1b1; --rule:#273341;
+  --accent:#88a3ff; --accent-soft:#1e2a4a; --onair:#f0b43c; --onair-soft:#3a2d12; --ctx:#121a22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf1; --muted:#93a1b1; --rule:#273341;
+  --accent:#88a3ff; --accent-soft:#1e2a4a; --onair:#f0b43c; --onair-soft:#3a2d12; --ctx:#121a22; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:780px;margin:0 auto;padding-block:28px 24px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* masthead */
+.mast{display:grid;gap:14px;border-bottom:3px solid var(--ink);padding-bottom:16px}
+.mast h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,7vw,52px);line-height:1.05;margin:0;letter-spacing:.02em}
+.mast h1 span{font-family:var(--f-mono);font-weight:600;font-size:.42em;letter-spacing:.12em;color:var(--accent);vertical-align:.55em;margin-left:.4em}
+.dateline{font-family:var(--f-mono);font-size:13px;color:var(--muted);letter-spacing:.04em}
+.clocks{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.clocks b{color:var(--ink);font-weight:600}
+
+/* top three */
+.top{margin-top:18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.top ol{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:t}
+.top li{counter-increment:t;display:grid;grid-template-columns:2.2em 1fr;gap:4px;font-size:17px;line-height:1.6}
+.top li::before{content:counter(t);font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.1;color:var(--accent)}
+
+/* agenda */
+.agenda{margin-top:22px;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:14px 16px}
+.agenda table{width:100%;border-collapse:collapse;font-size:14px}
+.agenda td{padding:5px 0;vertical-align:top;border-top:1px dashed var(--rule)}
+.agenda tr:first-child td{border-top:0}
+.agenda td.d{font-family:var(--f-mono);white-space:nowrap;padding-right:14px;color:var(--accent);font-variant-numeric:tabular-nums;width:1%}
+.agenda .today td.d::after{content:"";color:var(--onair);font-family:var(--f-body);font-weight:700}
+
+/* sections */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--bg);border-bottom:1px solid var(--rule);
+  display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-block:10px;margin-top:0}
+nav.toc::-webkit-scrollbar{display:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:16;background:var(--bg)}
+.chip{flex:0 0 auto;display:inline-flex;align-items:stretch;border:1px solid var(--rule);background:var(--surface);border-radius:999px;overflow:hidden}
+.chip a{font-size:14px;text-decoration:none;color:var(--ink);padding:5px 6px 5px 12px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.chip a small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.chip a:only-child{padding-right:12px}
+.chip a{padding-right:12px}
+.player audio{flex:1 1 260px;min-width:0;width:100%;height:40px}
+.pl-label{font-weight:600;font-size:14px;color:var(--ink);white-space:nowrap}
+.pod-lang{display:inline-flex;border:1px solid var(--ink);border-radius:999px;overflow:hidden;flex:0 0 auto}
+.pod-lang button{font:500 13px var(--f-body);background:transparent;color:var(--ink);border:0;padding:3px 10px;cursor:pointer}
+.pod-lang button+button{border-left:1px solid var(--ink)}
+.pod-lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chip button{border:0;border-left:1px solid var(--rule);background:transparent;color:var(--accent);font-size:12px;padding:0 10px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip button:hover,.chip.on button{background:var(--accent);color:var(--surface)}
+.chip.on{border-color:var(--accent)}
+section.desk,#highlights{scroll-margin-top:72px}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+section.desk{margin-top:38px}
+.desk-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--ink);padding-bottom:6px}
+.desk-head h2{font-family:var(--f-display);font-weight:900;font-size:26px;margin:0;letter-spacing:.03em}
+.desk-head h2 small{font-family:var(--f-mono);font-weight:400;font-size:12.5px;color:var(--muted);letter-spacing:.08em;margin-left:10px}
+.desk-head .meta{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.btn-mini{font:500 13px var(--f-body);border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:999px;padding:2px 10px;cursor:pointer}
+.btn-mini:hover{border-color:var(--accent);color:var(--accent)}
+
+article.item{padding:18px 0 20px;border-bottom:1px solid var(--rule);display:grid;gap:8px;scroll-margin-top:72px;transition:background .2s}
+article.item.reading{background:var(--onair-soft);box-shadow:-10px 0 0 var(--onair-soft),10px 0 0 var(--onair-soft)}
+article.item h3{font-family:var(--f-display);font-weight:600;font-size:20px;line-height:1.45;margin:0;text-wrap:balance}
+article.item .en{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);line-height:1.5}
+article.item p{margin:0;max-width:65ch}
+.ctx{background:var(--ctx);border-left:3px solid var(--accent);padding:10px 14px;font-size:15px;color:var(--ink);max-width:65ch}
+.ctx .lab{display:block;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;color:var(--accent);margin-bottom:2px}
+.why{font-size:15px;color:var(--muted)}
+.why b{color:var(--ink);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-family:var(--f-mono);font-size:12px;background:var(--accent-soft);color:var(--accent);padding:1px 8px;border-radius:3px}
+.src{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.src a{text-decoration:none;border-bottom:1px solid currentColor}
+
+/* holidays */
+.cult-list{display:grid;gap:0}
+.hol{display:grid;grid-template-columns:6.4em 1fr;gap:4px 14px;padding:14px 0;border-bottom:1px solid var(--rule);scroll-margin-top:72px;transition:background .2s}
+.hol.reading{background:var(--onair-soft);box-shadow:-10px 0 0 var(--onair-soft),10px 0 0 var(--onair-soft)}
+.hol .when{font-family:var(--f-mono);font-size:13px;color:var(--accent);line-height:1.35;font-variant-numeric:tabular-nums}
+.hol .when small{display:block;color:var(--muted);font-size:11.5px}
+.hol .when .soon{color:var(--onair);font-weight:600}
+.hol .what{min-width:0;display:grid;gap:6px}
+.hol .name{font-family:var(--f-display);font-weight:600;font-size:17px;line-height:1.4;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.hol .name .alt{font-family:var(--f-mono);font-weight:400;font-size:12px;color:var(--muted)}
+.hol .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.cc{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--rule);color:var(--muted);padding:0 6px;border-radius:3px}
+.off{font-size:12px;font-weight:600;color:var(--onair);background:var(--onair-soft);padding:0 8px;border-radius:3px}
+.hol p{margin:0;max-width:65ch;font-size:15px}
+.hol .tip{font-size:14px;color:var(--muted);max-width:65ch}
+.hol .tip b{color:var(--ink);font-weight:500}
+@media (max-width:480px){.hol{grid-template-columns:1fr}.hol .when small{display:inline;margin-left:6px}}
+footer{margin-top:40px;font-size:13px;color:var(--muted);max-width:65ch}
+
+/* player */
+.player{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--rule);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.player-in{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play{font:700 15px var(--f-body);background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:8px 18px;cursor:pointer;min-width:7.5em}
+.play.on{background:var(--onair);color:#1a1205}
+.stop{font:500 14px var(--f-body);background:transparent;color:var(--ink);border:1px solid var(--rule);border-radius:999px;padding:7px 14px;cursor:pointer}
+.player select{font:14px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:5px 6px}
+.now{flex:1 1 200px;min-width:0;font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now b{color:var(--onair)}
+.mast-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.lang{display:inline-flex;border:1px solid var(--ink);border-radius:999px;overflow:hidden}
+.lang button{font:500 13px var(--f-body);background:transparent;color:var(--ink);border:0;padding:3px 12px;cursor:pointer}
+.lang button+button{border-left:1px solid var(--ink)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.en-line{display:block}
+.sub{color:var(--muted);font-size:.92em}
+.en-p{max-width:65ch;line-height:1.65}
+p.en-p{margin:0}
+.ctx .en-p.sub{margin-top:8px;padding-top:8px;border-top:1px dashed var(--rule)}
+.why .en-p.sub{margin-top:2px}
+.top li .sub{font-size:15px;margin-top:2px}
+.agenda .today td.d::after{content:attr(data-today)}
+.agenda td .sub{font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:480px){.desk-head h2{font-size:22px} article.item h3{font-size:18px}}
+</style>
+
+<style>
+body{margin:0}
+.audio-files{margin-top:22px;display:grid;gap:8px}
+.audio-files .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.audio-files .row span{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;color:var(--muted);min-width:4em}
+.audio-files audio{flex:1 1 240px;max-width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-top"><div class="dateline" id="dateline"></div><div class="lang" role="group" aria-label="Language 语言"><button type="button" data-lang="zh">中文</button><button type="button" data-lang="both">双语</button><button type="button" data-lang="en">EN</button></div></div>
+    <h1>Dawn 晨讯<span>DAILY WIRE</span></h1>
+    <div class="clocks" id="clocks" aria-label="出刊时各地时间"></div>
+  </header>
+  <nav class="toc" id="toc" aria-label="版块导航 Sections"></nav>
+
+  <section class="top" id="highlights" aria-labelledby="top-h">
+    <div class="eyebrow" id="top-h"></div>
+    <ol id="top"></ol>
+  </section>
+
+  <section class="agenda" aria-labelledby="ag-h">
+    <div class="eyebrow" id="ag-h" style="margin-bottom:6px"></div>
+    <table><tbody id="agenda"></tbody></table>
+  </section>
+
+  
+  <main id="desks"></main>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="player" role="region" aria-label="播客 Podcast" id="player" hidden>
+  <div class="player-in">
+    <span class="pl-label" id="pl-label">今日播客</span>
+    <div class="pod-lang" id="pod-lang" role="group" aria-label="播客语言 Podcast language"><button type="button" data-pl="zh">中文</button><button type="button" data-pl="en">EN</button></div>
+    <audio id="pod" controls preload="none"></audio>
+  </div>
+</div>
+
+<!-- BRIEF-DATA:START -->
+<script id="brief-data" type="application/json">{
+ "edition": "2026-10-31",
+ "editionTime": "2026-10-31T07:00:00+01:00",
+ "top": [
+  "习近平会见施泰因迈尔，称中欧应「锚定伙伴关系」，同时默茨在亚洲呼吁建立规则导向的贸易联盟",
+  "《纽约时报》称英伟达CEO黄仁勋曾与一名为中国搜集情报的商人保持密切关系，中方否认",
+  "美国中期选举将于周二举行，AI、伊朗战争与物价成为选情背景"
+ ],
+ "top_en": [
+  "Xi tells Steinmeier that China and the EU should stay anchored to their partnership, while Merz calls in Asia for a rules-based trade alliance",
+  "NYT says Nvidia CEO Jensen Huang had a close tie to a businesswoman gathering intelligence for China, and Beijing denies it",
+  "US midterms are on Tuesday, with AI, the Iran war and prices shaping the backdrop"
+ ],
+ "agenda": [
+  {
+   "d": "10-31",
+   "t": "德国约34个城市举行Z世代青年抗议",
+   "en": "Gen Z protests in about 34 German cities"
+  },
+  {
+   "d": "11-03",
+   "t": "美国中期选举投票日",
+   "en": "US midterm election day"
+  },
+  {
+   "d": "11-30",
+   "t": "黑山航空开通布鲁塞尔航线",
+   "en": "Air Montenegro starts Brussels flights"
+  }
+ ],
+ "desks": [
+  {
+   "id": "be",
+   "name": "比利时",
+   "nameEn": "Belgium",
+   "en": "BELGIUM",
+   "tz": "Europe/Brussels",
+   "tzLabel": "布鲁塞尔",
+   "tzLabelEn": "Brussels",
+   "items": [
+    {
+     "zh": "比利时国防部与鲁汶Imec结成合作，每年投入1000万欧元",
+     "en": "Belgian Defence partners with Leuven's Imec, with 10 million euros a year",
+     "body": "比利时军方与鲁汶的纳米电子与数字技术研究机构Imec签署合作，Imec将为国防开发应用，每年获得1000万欧元。国防部长弗朗肯（Francken）称这是「军队的历史性一天」，并称这是「别人没有的王牌」。",
+     "body_en": "The Belgian army has signed a partnership with Leuven-based Imec, a research centre in nano-electronics and digital technology. Imec will develop applications for Defence and receive 10 million euros a year. Defence Minister Theo Francken called it a historic day for the army and a trump card nobody else has.",
+     "ctx": "Imec是鲁汶的国际知名芯片研究机构。比利时近年提高国防投入，并强调本国科技能力在国防中的作用。",
+     "ctx_en": "Imec is a well-known chip research institute in Leuven. Belgium has been raising defence spending in recent years and stressing the role of home-grown technology.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Imec",
+      "Defence",
+      "Leuven"
+     ],
+     "topics": [
+      "科技竞争",
+      "比利时本地生活"
+     ],
+     "thread": "鲁汶本地生活",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "Imec"
+      },
+      {
+       "type": "人物",
+       "name": "弗朗肯"
+      },
+      {
+       "type": "机构",
+       "name": "比利时国防部"
+      }
+     ],
+     "sources": [
+      {
+       "n": "VRT NWS",
+       "u": "https://vrtnws.be/p.ew4K8R4AB"
+      }
+     ]
+    },
+    {
+     "zh": "比利时议会将表决允许警方入户搜查窝藏无证移民者的争议法案",
+     "en": "Belgian parliament to vote on divisive law allowing police home raids over undocumented migrants",
+     "body": "据EUobserver报道，比利时议会将就一项有争议的新法律投票。该法律允许警方在怀疑有人窝藏无证移民时进入民宅搜查。",
+     "body_en": "EUobserver reports that the Belgian parliament will vote on a divisive new law. It would let police enter homes if they suspect someone is harbouring an undocumented migrant.",
+     "ctx": "现任联邦政府主张收紧移民政策。民宅搜查涉及住宅不可侵犯与人道援助之间的张力，在比利时社会中引发争论。",
+     "ctx_en": "The federal government favours tighter migration policy. Home searches raise a tension between the inviolability of the home and humanitarian help, which is debated in Belgium.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Migration",
+      "Police powers",
+      "Belgium"
+     ],
+     "topics": [
+      "移民与边境",
+      "法治与监管"
+     ],
+     "thread": "比利时移民法",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "比利时议会"
+      },
+      {
+       "type": "国家",
+       "name": "比利时"
+      }
+     ],
+     "sources": [
+      {
+       "n": "EUobserver",
+       "u": "https://news.google.com/rss/articles/CBMihwJBVV95cUxNTENLTTNKeWVJcWRxTzh1S3ByS09IOWFwaFI2aWhyZHpjd2JheEE1UGYzLVRNR081cC1hbFFPNHp2MmZhZlpnUTFXSDRIM1dkOFpJYW5xOW5WTlNMaGkxLWlzMTNBQWxvRjFOTnBEMjF2Tld4SDdKTVNJYjUyb3RpLTcxMTNOZ0xEY1IxTTdLRjc1WVpxTlc4QkMzVVlud1dLTG5GRTZJdTFnSkQ1UGZkRzJEVGw0YzVtSXFTRTJXODFWSkNRLTB4TzgyYkFyTndUMnRxb1dvclk5NUE2MjF4Ukx5eVNoZkpibmpmVW9GYmlaZEtXRU9kNEZnNXJzYnptSExsSzNIZw?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "鲁汶火车站一名武装军人引发市民报警，原为寻找军营",
+     "en": "Armed soldier in Leuven station prompts police calls; he was looking for the barracks",
+     "body": "周五早上，一名背着大背包和武器的职业军人让鲁汶火车站的多名旅客不安并报警。警方查明无需恐慌，他是要前往海弗勒的军营，但不知道怎么走。",
+     "body_en": "On Friday morning a professional soldier with a large backpack and a weapon on his back made several travellers in Leuven station uneasy, and they called the police. There was no cause for panic: he was heading to the army barracks in Heverlee but did not know the way.",
+     "ctx": "比利时近年因安全警戒级别和军队在公共场所的存在，市民对此类场景更为敏感。",
+     "ctx_en": "Belgians have become more sensitive to such scenes because of security alert levels and visible soldiers in public places.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Leuven",
+      "Station",
+      "Army"
+     ],
+     "topics": [
+      "比利时本地生活"
+     ],
+     "thread": "鲁汶本地生活",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "鲁汶"
+      },
+      {
+       "type": "机构",
+       "name": "比利时军队"
+      }
+     ],
+     "sources": [
+      {
+       "n": "VRT NWS",
+       "u": "https://vrtnws.be/p.M9mJeD8MB"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "de",
+   "name": "德国与欧洲",
+   "nameEn": "Germany & Europe",
+   "en": "GERMANY · DW",
+   "tz": "Europe/Berlin",
+   "tzLabel": "柏林",
+   "tzLabelEn": "Berlin",
+   "items": [
+    {
+     "zh": "默茨在亚洲呼吁规则导向的贸易联盟，视印度为供应链多元化伙伴",
+     "en": "Merz in Asia calls for a rules-based trade alliance, names India as a supply-chain partner",
+     "body": "德国总理默茨在亚洲访问期间警告不要把贸易武器化，呼吁维护以规则为基础的秩序，并提议建立规则导向贸易的全球联盟，称印度是供应链多元化的伙伴。他还在韩国非军事区表达了对朝鲜半岛统一的期望。",
+     "body_en": "During his Asia trip, German Chancellor Friedrich Merz warned against weaponising trade and called for a rules-based order. He proposed a global alliance on rules-based trade and named India as a partner for diversifying supply chains. At the Korean DMZ he also voiced hope for reunification.",
+     "ctx": "德国正在减少对单一市场的依赖。与此同时，德国总统施泰因迈尔正在北京访问，德国在中国与其他亚洲伙伴之间保持平衡。",
+     "ctx_en": "Germany is trying to reduce reliance on any single market. German President Steinmeier is in Beijing at the same time, so Berlin is balancing China and other Asian partners.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Merz",
+      "Rules-based trade",
+      "India"
+     ],
+     "topics": [
+      "贸易与关税",
+      "中欧关系"
+     ],
+     "thread": "德国对华政策",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "默茨"
+      },
+      {
+       "type": "国家",
+       "name": "德国"
+      },
+      {
+       "type": "国家",
+       "name": "印度"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Times of India",
+       "u": "https://news.google.com/rss/articles/CBMilwJBVV95cUxQRURVczloWUItSnlaQlhsbHpteF9JLWNqdXVzWmZsTGktdk9tNTVlSFRzbVdvQmNjLS1WNGVValk4Y0ZESEFYT2R6bG55VnZIY19xbjNrQjhVR1Q5akZEN2pMMDFHcXJ3WVhDWE9iczNJQXNDRk5TMU5pQjB1Y0J3YlVFb2xWaWlVNWxqR253cmJmMGNmcERJRV9MR0ppTVNValc1bmFrSDBfYzlwSHlVYnJLRHZha01zOEo1OHliUWU5NnVFLUNLQ01QamRQTDRzdFV6RkpMREZaSl9Zd1d4ZFh3Y2ttMW5DY2xnaWFQampYVkpNUDZTVE9GV0xmLXBITUFXeFF0UmpRbjI2cHFEY1dKUUZXSjDSAZwCQVVfeXFMTjVIdG41R2hwZG5RNXlsbklPcnZoTV81eHVQVTJaRmV5QzhRNkc5N3otRXJyU3dEZExTanBQVXE4eWk1Z1hENWd5WnZUajlSbVFfM3l1emVKcGJUUTZndUVYbGpseXVyMlR0UlY3MFZzdW1rVXVVNGFVSTFqM09qcGgyQWd4VWs0S2dkaVR3REl4RGxtZWRXSllCeW5UUEtCUFJkR0VETzcxd3p4aG9FYzBsZlA0dlNhdDRsdkFUaWx5TW5EOTh5b2tNNVdzalhHVURuWE4wdl9LdXNDTG9MNFk4eUdNUjlwY2lGTXhEN1VNWXVGZ05peV9hNDJuM3l5SjJ6TUN6dmE2dmpFbW13cGszUjRYNzNiRnZ6dWo?oc=5"
+      },
+      {
+       "n": "DW",
+       "u": "https://www.dw.com/en/germany-news-merz-hopes-for-korean-reunification-at-dmz/live-79803462?maca=en-rss-en-ger-1023-rdf"
+      }
+     ]
+    },
+    {
+     "zh": "加拿大总理卡尼谈与欧盟「联系成员」关系，德方持保留",
+     "en": "Carney defends Canada's 'associate membership' idea with the EU despite German pushback",
+     "body": "卡尼在接受德国之声采访时说，加拿大希望加深与欧盟的关系，以便在美洲之外实现伙伴关系的「多元化与深化」。尽管德国有异议，他仍倾向使用「联系成员资格」这一全新的说法。新华社则发文质疑这一概念及其争议。",
+     "body_en": "In a DW interview, Mark Carney said Canada wants closer EU ties to diversify and deepen partnerships beyond the Americas. Despite German pushback, he favours the new term 'associate membership'. Xinhua ran a piece on why the concept is disputed.",
+     "ctx": "在对美依赖受到质疑的背景下，加拿大与欧盟正在寻求更紧密的经贸与安全合作，欧盟也在向加拿大提供更近的伙伴关系，并出现支持乌克兰贷款的表态。",
+     "ctx_en": "With reliance on the US under question, Canada and the EU are seeking closer trade and security ties. Brussels has offered a closer partnership, and Canada has backed an EU loan for Ukraine.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Canada",
+      "EU",
+      "Carney"
+     ],
+     "topics": [
+      "贸易与关税",
+      "其他"
+     ],
+     "thread": "欧加关系",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "马克·卡尼"
+      },
+      {
+       "type": "机构",
+       "name": "欧盟"
+      },
+      {
+       "type": "国家",
+       "name": "加拿大"
+      },
+      {
+       "type": "国家",
+       "name": "德国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "DW",
+       "u": "https://www.dw.com/en/canadian-pm-mark-carney-discusses-talks-with-the-eu-overdependence-on-the-us-and-how-to-deal-with-donald-trump-in-a-dw-interview/a-79811469?maca=en-rss-en-eu-2092-rdf"
+      },
+      {
+       "n": "Xinhua",
+       "u": "https://news.google.com/rss/articles/CBMifEFVX3lxTE8wcS1UUl9KMGVXYUsxdlVQdVVOSEpTVzJ3bER4Mmx6Z05OVldUakdMOEFLM213UGVqeGY3MVNIV2F6MERCLThXZ0htZ0daZENTMVNPSmFPaXhyVkRva2ZPNVBmTjhydGdtdjd2VFBxS3JydEl6N0hCcXdldFg?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "默茨宣布11月在柏林举行乌克兰援助协调峰会",
+     "en": "Merz announces November Berlin meeting of the Coalition of the Willing on Ukraine",
+     "body": "默茨宣布，「意愿联盟」将在11月举行新的会议，地点在柏林，目的是协调对乌克兰的援助。",
+     "body_en": "Merz has announced a new meeting of the Coalition of the Willing in November. It will be held in Berlin to coordinate aid for Ukraine.",
+     "ctx": "「意愿联盟」是一批支持乌克兰的国家组成的松散集团，近期各方围绕和谈与援助继续协调。",
+     "ctx_en": "The Coalition of the Willing is a loose group of countries backing Ukraine. Members keep coordinating on peace talks and aid.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Ukraine",
+      "Coalition of the Willing",
+      "Berlin"
+     ],
+     "topics": [
+      "安全与冲突"
+     ],
+     "thread": "乌克兰和谈",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "默茨"
+      },
+      {
+       "type": "机构",
+       "name": "意愿联盟"
+      },
+      {
+       "type": "国家",
+       "name": "乌克兰"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Kyiv Post",
+       "u": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE1GMklNLVlDckNKMkpzYXl0dVRHdjI4ZnFmal9zRnJlMVJDb0NyUGNjbW0xVlBmaTI4Qm5JMDZUUlpFLURtT05YWUVMQQ?oc=5"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "world",
+   "name": "世界",
+   "nameEn": "World",
+   "en": "WORLD · BBC",
+   "tz": "Europe/London",
+   "tzLabel": "伦敦",
+   "tzLabelEn": "London",
+   "items": [
+    {
+     "zh": "《纽约时报》：黄仁勋曾与为中国搜集情报的商人保持密切关系，中方否认",
+     "en": "NYT: Nvidia's Huang had a close tie to a businesswoman gathering intelligence for China; Beijing denies",
+     "body": "《纽约时报》援引美国情报人员的说法称，美国情报官员认为一名中国女商人在为北京收集英伟达的信息，英伟达CEO黄仁勋与她有长达一年的「密切关系」。中方否认相关指控。另据半岛电视台，美国法院另案判处两名中国公民入狱，他们承认协助向美国境内人员以「死投递」方式支付至少3万美元现金。",
+     "body_en": "Citing US intelligence personnel, The New York Times reports that officials believe a Chinese businesswoman was collecting information on Nvidia for Beijing, and that CEO Jensen Huang had a close tie to her for a year. China denies the allegations. Separately, Al Jazeera reports that a US court jailed two Chinese nationals who admitted to arranging dead-drop cash payments of at least $30,000 to people in the US.",
+     "ctx": "英伟达芯片是中美科技竞争的核心，对华出口管制与间谍案持续升温。这类报道来自匿名情报来源，目前主要是媒体指控，中方已否认。",
+     "ctx_en": "Nvidia chips sit at the centre of US-China tech rivalry, and export controls and espionage cases keep escalating. The claims rest on intelligence sources cited by media, and Beijing has denied them.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Nvidia",
+      "Espionage",
+      "US-China"
+     ],
+     "topics": [
+      "科技竞争",
+      "中国外交"
+     ],
+     "thread": "中美科技博弈",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "黄仁勋"
+      },
+      {
+       "type": "机构",
+       "name": "英伟达"
+      },
+      {
+       "type": "机构",
+       "name": "纽约时报"
+      },
+      {
+       "type": "国家",
+       "name": "中国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC",
+       "u": "https://www.bbc.co.uk/news/articles/ckgj9plnlxdeo?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "VRT NWS",
+       "u": "https://vrtnws.be/p.BlYOPknp1"
+      },
+      {
+       "n": "Al Jazeera",
+       "u": "https://www.aljazeera.com/news/2026/10/31/us-jails-two-chinese-nationals-for-spying?traffic_source=rss"
+      }
+     ]
+    },
+    {
+     "zh": "俄占奥列什基在罕见停火期间撤离数百人",
+     "en": "Hundreds evacuated from Russian-occupied Oleshky during rare ceasefire",
+     "body": "据BBC报道，在一次罕见的停火期间，数百人从俄罗斯占领的奥列什基撤离。仍有数百人选择留在这个前线城镇，尽管危险重重。",
+     "body_en": "BBC reports that hundreds of people were evacuated from Russian-occupied Oleshky during a rare ceasefire. Hundreds more are understood to have stayed in the front-line town despite the danger.",
+     "ctx": "奥列什基位于乌克兰南部前线，居民长期处于战火与封锁之下。战事也在破坏黑海生态，半岛电视台称已有超过12万只海豚死亡。",
+     "ctx_en": "Oleshky lies on the southern front, and residents have lived under fire and isolation for a long time. The war is also damaging the Black Sea, with Al Jazeera citing more than 120,000 dolphin deaths.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Ukraine",
+      "Ceasefire",
+      "Evacuation"
+     ],
+     "topics": [
+      "安全与冲突"
+     ],
+     "thread": "乌克兰和谈",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "乌克兰"
+      },
+      {
+       "type": "国家",
+       "name": "俄罗斯"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC",
+       "u": "https://www.bbc.co.uk/news/articles/c60me298k1yeo?at_medium=RSS&at_campaign=rss"
+      }
+     ]
+    },
+    {
+     "zh": "联合国安理会否决美俄西撒哈拉决议，维和团失去延期授权",
+     "en": "UN Security Council rejects rival US and Russian Western Sahara resolutions",
+     "body": "联合国安理会否决了美国和俄罗斯各自提出的西撒哈拉决议草案，致使联合国维和特派团没有获得批准的延期。",
+     "body_en": "The UN Security Council rejected competing US and Russian draft resolutions on Western Sahara. The peacekeeping mission is left without an approved extension.",
+     "ctx": "西撒哈拉问题长期由摩洛哥与波利萨里奥阵线争执，联合国特派团负责监督停火与公投筹备。",
+     "ctx_en": "Western Sahara is a long-running dispute between Morocco and the Polisario Front, and the UN mission monitors the ceasefire and prepares a referendum.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "UN",
+      "Western Sahara",
+      "Security Council"
+     ],
+     "topics": [
+      "安全与冲突"
+     ],
+     "thread": "西撒哈拉决议",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "联合国安理会"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      },
+      {
+       "type": "国家",
+       "name": "俄罗斯"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Al Jazeera",
+       "u": "https://www.aljazeera.com/news/2026/10/31/rival-us-and-russian-resolutions-on-western-sahara-fail-at-un?traffic_source=rss"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "us",
+   "name": "美国",
+   "nameEn": "United States",
+   "en": "UNITED STATES",
+   "tz": "America/New_York",
+   "tzLabel": "华盛顿",
+   "tzLabelEn": "Washington",
+   "items": [
+    {
+     "zh": "中期选举周二投票，教皇利奥十四世邮寄选票",
+     "en": "Midterms on Tuesday as Pope Leo XIV mails in his ballot",
+     "body": "芝加哥出生的教皇利奥十四世以美国公民身份邮寄了中期选举选票，成为首位在美国选举中投票的教皇，但没有透露投给谁。此外，阿拉斯加州长下令调查民主党是否招募「搅局」候选人以混淆选民的指控。",
+     "body_en": "Chicago-born Pope Leo XIV mailed in a ballot as a US citizen, becoming the first pontiff to vote in a US election, and did not say whom he backed. Separately, Alaska's governor ordered an inquiry into claims that Democrats recruited a spoiler candidate to confuse voters.",
+     "ctx": "这次选举将决定国会控制权。民主党若夺得一院，可能加强对特朗普对华举措的监督，但对华整体仍可能保持强硬。",
+     "ctx_en": "The vote will decide control of Congress. A Democratic win in one chamber could mean tougher scrutiny of Trump's dealings with Beijing, though Congress would likely stay broadly hawkish on China.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Midterms",
+      "Pope Leo XIV",
+      "Alaska"
+     ],
+     "topics": [
+      "选举与政党"
+     ],
+     "thread": "2026美国中期选举",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "利奥十四世"
+      },
+      {
+       "type": "机构",
+       "name": "美国国会"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC",
+       "u": "https://www.bbc.co.uk/news/articles/ckwyq2509p7xo?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "DW",
+       "u": "https://www.dw.com/en/us-midterms-pope-leo-xiv-casts-vote-by-mail/a-79810339?maca=en-rss-en-all-1573-rdf"
+      },
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/10/30/g-s1-150889/up-first-newsletter-midterm-elections-iran-war-veteran-affairs-loans"
+      }
+     ]
+    },
+    {
+     "zh": "伊朗战争推高油价，石油公司利润再创新高",
+     "en": "Oil company profits jump again as Iran war lifts prices",
+     "body": "NPR报道，伊朗战争推高油价和加油站价格，石油公司再次公布高额季度利润。这也使物价成为中期选举中的重要话题。",
+     "body_en": "NPR reports that the war in Iran is pushing up oil and pump prices, and oil companies have posted another quarter of very high profits. Affordability is a major theme ahead of the midterms.",
+     "ctx": "伊朗战争也冲击欧洲。默茨称德国正努力结束这场战争，据报道其对欧洲造成约1120亿美元的损失，霍尔木兹海峡航运也遭袭击。",
+     "ctx_en": "The Iran war also hits Europe. Merz says Germany is working to end it, with reported costs to Europe of $112bn, and ships have been attacked in the Strait of Hormuz.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Oil",
+      "Iran war",
+      "Prices"
+     ],
+     "topics": [
+      "宏观经济",
+      "气候与能源"
+     ],
+     "thread": "伊朗战争",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "伊朗"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/10/31/nx-s1-6008072/oil-company-profits-gasoline-diesel-prices"
+      }
+     ]
+    },
+    {
+     "zh": "得州一名ICE探员因驾车撞伤移民被起诉",
+     "en": "ICE agent charged for hitting Texas immigrant with vehicle during pursuit",
+     "body": "一名ICE探员在追捕过程中驾车撞伤一名无合法身份的墨西哥籍男子，检方称其腿部多处骨折并伴有髋部受伤，探员已被起诉。",
+     "body_en": "An ICE agent has been charged after hitting an undocumented Mexican man with a vehicle during a pursuit. Prosecutors say the man suffered multiple leg fractures and a hip injury.",
+     "ctx": "特朗普政府强化移民执法后，执法方式屡受质疑。联邦探员被地方检方起诉并不常见。",
+     "ctx_en": "Enforcement methods have drawn scrutiny since the Trump administration stepped up immigration enforcement. Charges against a federal agent are unusual.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "ICE",
+      "Immigration",
+      "Texas"
+     ],
+     "topics": [
+      "移民与边境",
+      "法治与监管"
+     ],
+     "thread": "美国移民执法",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "ICE"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC",
+       "u": "https://www.bbc.co.uk/news/articles/ckjwep125v3eo?at_medium=RSS&at_campaign=rss"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cn",
+   "name": "中国",
+   "nameEn": "China",
+   "en": "CHINA · 外交 / 投资 / 政策",
+   "tz": "Asia/Shanghai",
+   "tzLabel": "北京",
+   "tzLabelEn": "Beijing",
+   "items": [
+    {
+     "zh": "习近平会见施泰因迈尔：中欧应「锚定伙伴关系」",
+     "en": "Xi tells Steinmeier China and EU must stay anchored to their partnership",
+     "body": "习近平在北京会见德国总统施泰因迈尔时说，中国始终视欧盟为伙伴，双方可以通过对话解决分歧，应保持合作。以上内容来自央视报道。",
+     "body_en": "Meeting German President Steinmeier in Beijing, Xi said China has always regarded the EU as a partner and that differences can be resolved through dialogue. The account comes from state broadcaster CCTV.",
+     "ctx": "近期中欧在贸易、电动车、出口管制和投资审查方面摩擦不断。德国是欧盟最大经济体，也是中国重要贸易伙伴。",
+     "ctx_en": "China and the EU have clashed over trade, EVs, export controls and investment screening. Germany is the bloc's largest economy and a key trading partner of China.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Xi Jinping",
+      "Steinmeier",
+      "EU-China"
+     ],
+     "topics": [
+      "中欧关系",
+      "中国外交"
+     ],
+     "thread": "德国对华政策",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "习近平"
+      },
+      {
+       "type": "人物",
+       "name": "施泰因迈尔"
+      },
+      {
+       "type": "机构",
+       "name": "欧盟"
+      },
+      {
+       "type": "国家",
+       "name": "德国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/diplomacy/article/3372781/xi-jinping-tells-german-president-china-and-eu-must-stay-anchored-their-partnership"
+      },
+      {
+       "n": "DW",
+       "u": "https://www.dw.com/en/germany-news-merz-hopes-for-korean-reunification-at-dmz/live-79803462?maca=en-rss-en-ger-1023-rdf"
+      }
+     ]
+    },
+    {
+     "zh": "商务部批美国联邦通信委员会禁止2028年后在华设备测试",
+     "en": "Beijing blasts US FCC ban on device testing in China",
+     "body": "中国商务部坚决反对美国联邦通信委员会（FCC）决定自2028年起禁止在中国进行设备测试，称这严重损害中国及其他贸易伙伴利益，破坏中美经贸关系稳定，并警告可能扰乱供应链。",
+     "body_en": "China's Ministry of Commerce firmly opposes the US FCC decision to bar device testing in China by 2028. It says the move seriously harms the interests of China and other trading partners, undermines stability in China-US economic ties, and warns of supply chain disruption.",
+     "ctx": "美国近年不断以国家安全为由限制中国相关电子设备与实验室。该措施与更广泛的中美科技竞争同步推进。",
+     "ctx_en": "Washington has repeatedly restricted Chinese electronics and labs on national security grounds. This fits the wider US-China tech contest.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "FCC",
+      "Commerce Ministry",
+      "Supply chain"
+     ],
+     "topics": [
+      "科技竞争",
+      "贸易与关税"
+     ],
+     "thread": "中美科技博弈",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "中国商务部"
+      },
+      {
+       "type": "机构",
+       "name": "美国联邦通信委员会"
+      },
+      {
+       "type": "国家",
+       "name": "中国"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/diplomacy/article/3372816/beijing-blasts-us-ban-device-testing-china-warns-supply-chain-disruptions"
+      }
+     ]
+    },
+    {
+     "zh": "解放军反腐扩大：16名将领被开除党籍，党代会或逐步恢复军方代表",
+     "en": "PLA anti-graft widens with 16 generals expelled; party congress may restore military seats",
+     "body": "中国披露军队和国防工业反腐的新细节，包括16名将领被开除党籍、企业负责人被查。BBC称清洗人数创纪录，观察人士认为反腐已成为巩固权威的手段。SCMP分析人士认为，党代会上军方在最高领导层的代表将逐步恢复。",
+     "body_en": "Beijing gave new details of its anti-corruption drive in the PLA and defence industry, including 16 generals expelled from the party and corporate chiefs under investigation. BBC reports a record number of purges, and observers see the campaign as a way to consolidate authority. SCMP analysts expect military representation in the top leadership to be gradually restored at the party congress.",
+     "ctx": "近年军队高层接连落马，党在强调纪律的同时需要在党军关系上取得平衡。",
+     "ctx_en": "Senior PLA officers have fallen one after another in recent years, and the party must balance discipline with its relationship to the military.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "PLA",
+      "Anti-corruption",
+      "Party congress"
+     ],
+     "topics": [
+      "党政与人事",
+      "法治与监管"
+     ],
+     "thread": "中国高层人事",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "解放军"
+      },
+      {
+       "type": "机构",
+       "name": "中国共产党"
+      },
+      {
+       "type": "人物",
+       "name": "习近平"
+      }
+     ],
+     "sources": [
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/military/article/3372704/china-widens-pla-anti-graft-campaign-expelling-corporate-chiefs-16-generals-party"
+      },
+      {
+       "n": "BBC",
+       "u": "https://www.bbc.co.uk/news/articles/cq5ynw94k7kzo?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/military/article/3372773/china-poised-restore-military-presence-top-leadership-party-congress"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ai",
+   "name": "AI 治理与伦理",
+   "nameEn": "AI Governance",
+   "en": "AI GOVERNANCE",
+   "tz": "",
+   "tzLabel": "全球",
+   "tzLabelEn": "Global",
+   "items": [
+    {
+     "zh": "中国,东盟AI治理圆桌会在雄安举行，中国加强全球南方能力建设",
+     "en": "China-ASEAN AI governance roundtable held in Xiong'an as China steps up Global South capacity building",
+     "body": "中国,东盟人工智能治理圆桌会在雄安举行。国内媒体同时报道，中国正加大面向全球南方的人工智能能力建设，意在引领全球AI治理。",
+     "body_en": "A China-ASEAN AI governance roundtable took place in Xiong'an. Chinese media also report that China is expanding AI capacity-building for the Global South, aiming to lead global AI governance.",
+     "ctx": "中国近年推出全球AI治理倡议，并强调向发展中国家提供能力建设，与美欧的治理路径形成竞争。",
+     "ctx_en": "China has put forward global AI governance initiatives and stresses capacity building for developing countries, competing with US and EU approaches.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "China-ASEAN",
+      "Global South",
+      "AI governance"
+     ],
+     "topics": [
+      "AI治理与监管",
+      "中国外交"
+     ],
+     "thread": "中国AI治理外交",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "中国"
+      },
+      {
+       "type": "机构",
+       "name": "东盟"
+      }
+     ],
+     "sources": [
+      {
+       "n": "搜狐网",
+       "u": "https://news.google.com/rss/articles/CBMijAFBVV95cUxPVF8zUXFFME1qQzgtUlZkTGF5bWdKNDg5Z0FxTG1BaTFKMXhwZUM5VGx2TmQ3d3Z1YmNhQWlEcGpobGU2aFBCOUdOb3dySGZJQWpWOVlRVFBzbGlSUWFTQW5yaTdBTmdWR1pRMmFDekladzBlQnNyd2dobEd2akZ4aEVRN1hjaEd4bGItZA?oc=5"
+      },
+      {
+       "n": "手机新浪网",
+       "u": "https://news.google.com/rss/articles/CBMifkFVX3lxTE9XdVBReDJaY180RGlleUR5ZV9HM09OQ2NYbXlwcWNLYy1xMUZTRm5nd2tSU0p6T0sxSFM2RlBFdndjU0cxNThyUjQyalc0bjAwTE12MFlfSjVSYUFZelhfN1YwQk1Xd2dxRW1nSllMaUZTRDh6eE9pSG5pcXlDZw?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "AI首次在美国中期选举中凸显，AI安全成为政治工具",
+     "en": "AI becomes a visible factor in the US midterms, and AI safety turns into a political tool",
+     "body": "报道称，AI正在改变选民认知与政治游说，这是AI首次在美国中期选举中明显凸显。印度智库ORF的文章则讨论前沿AI实验室与AI安全如何被当作政治工具。纽约州也有法案拟提高AI安全监管要求。",
+     "body_en": "Reports say AI is changing voter perceptions and political lobbying, the first time its influence stands out in a US midterm. An ORF commentary discusses how frontier labs and AI safety are used as political instruments. A New York bill would also raise AI safety requirements.",
+     "ctx": "联邦层面的AI监管之争仍未平息，各州法案和产业游说成为主要战场。",
+     "ctx_en": "The fight over federal AI rules is unresolved, and state bills and industry lobbying have become the main arena.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Midterms",
+      "AI safety",
+      "New York"
+     ],
+     "topics": [
+      "AI治理与监管",
+      "选举与政党"
+     ],
+     "thread": "美国AI监管之争",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "纽约州"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "中华网",
+       "u": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5xX1IySG5QRGJPMHRrRHNoMW9md3lhTGNlR1poUktFOEdzUnlTdnRaNFo4S253R25EbzU3TzdpaE1kRHZkZzI2clA3ZmpKb3ZrNGJ1emUxc2tTaDMwUnVPV2lXZWpsRjh4YkVuVFRjZ2s?oc=5"
+      },
+      {
+       "n": "ORF",
+       "u": "https://news.google.com/rss/articles/CBMirAFBVV95cUxPRjFHSmZOcjF0NXkzd25sNW9fcUpSd3NIX1hCYlhaQVk0UzUwWWhzb3dqc2NBM2Y0eEpTOEc2VWVwMlBUd3AyVWdvYWwxZTR0YzJ1bUNQOGdjcTktazF5UTBnTnE5SjhHTzJlOVZZSUJfbXROVTBjanVQZjdreE1EVXIwajI0bnZUSlpZem5SY0Nfa2szZTRuT3ZwSHhRamFpWUpiVDJLUmxIbGtn?oc=5"
+      },
+      {
+       "n": "PYMNTS",
+       "u": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxOX2FQWHZPbmhYMS0zNEM2cU1sblVnX2V1eFNuM0NiYXY5XzBwRUQyclcyNHctN3JyaGdCY0hKWXpDeGxwclpfS3hMNVBtRTVyV3Bfd0RCRl81WFJRWlVXbE1GaXdSZ2hZUVM4Y3NtVGh6V21aZGh2dURsT0VWdTl5RUJXNGo4QU1KNnlVZXF5eVZXR0pVMVJwQ3FVTkNmSkdXOWtlVUhpWXU?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "科技巨头承诺出台新方案，禁止抓取新闻内容训练AI",
+     "en": "Tech giants promise a scheme to stop scraping news content for AI training",
+     "body": "据RFI报道，多家科技巨头向媒体承诺将出台新方案，禁止抓取新闻内容用于训练AI模型。",
+     "body_en": "RFI reports that several tech giants have promised news media they will introduce a new scheme to prevent news content from being scraped to train AI models.",
+     "ctx": "新闻机构与AI公司围绕训练数据的版权与补偿争议长期存在，欧盟AI法案也要求透明度。",
+     "ctx_en": "News publishers and AI firms have long disputed copyright and compensation for training data, and the EU AI Act sets transparency duties.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Copyright",
+      "Training data",
+      "News media"
+     ],
+     "topics": [
+      "AI伦理与社会影响",
+      "法治与监管"
+     ],
+     "thread": "欧盟AI法案落地",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "RFI"
+      }
+     ],
+     "sources": [
+      {
+       "n": "RFI",
+       "u": "https://news.google.com/rss/articles/CBMihwRBVV95cUxQT0J3dVBGTU1wY1U3NUF3cDFGSVlKVE9qRl95U0sySzNyQjBDMTNWZlpvVnZWRzExblNLVlZIS204RU9RVzRsNDRBVUlaQ2U3RHZuSDMwYVZZLVRXUWRfTDVodEF4THlKdERlZ29uczFFamhKOTVhREVoS2MtdExkZlpucXBXRzlyaElnSkdYZHpxU1FZbHdRWTBTT3Z4V09TV3c3VjF6cURDb0VUbXNqLTVVc09OVEZKQkY1WnNCN2hHSXpDazA1Z2NIWDhDX3JyXzVMTjZ6TmJ6aWZqQUYwUDJON25Bdmw3OEdaa040U0ZOdi1pYm1rQkItMW1ERFpPOWdTa2p3Z0JUdGh4eFg4Ny04TUswYUw4VnBjYlpRN3U2MUlsV285dDdnVkRJNHk2Y1VRUlRfRHZqVXhJTFp4aVJzenAwakxIOEtYQVZzOUM5ejZUVEwwMEFFS0xsTnFUOHZyVHRiLTZlYVpySVdNdWVoQnRSeXBMQ2lPRndnVndVZkdoczZWQWQ3c04tZGVaREFIdVNsa1B5RDZxdHBuNjJsa3FmWTYzdkhiSnZiVTNUbHFwa09rUFk3QkZHMmhLWXhKZzVQOVFyMGpRejNLeHR4eWRjOVZwUlU2dVJQMFQ5R0hmZzB6UEtpdWF1UDh3S1NCZ0NMcFZjbmFqV3hkSEhMeWlOLUk?oc=5"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "podcast": {
+  "zh": [
+   {
+    "s": "A",
+    "t": "这里是Dawn晨讯，今天是2026年10月31日，星期六。中国国家主席习近平在北京会见德国总统施泰因迈尔。据央视报道，习近平说，中国始终视欧盟为伙伴，双方可以通过对话解决分歧，应锚定伙伴关系、保持合作。中欧近期在贸易、电动车、出口管制和投资审查方面摩擦不断。德国是欧盟最大的经济体，也是中国重要的贸易伙伴。"
+   },
+   {
+    "s": "A",
+    "t": "同一时期，德国总理默茨在亚洲访问时警告不要把贸易武器化，呼吁维护以规则为基础的秩序。他提议建立规则导向贸易的全球联盟，并称印度是供应链多元化的伙伴。《纽约时报》援引美国情报人员的说法报道。美国情报官员认为，一名中国女商人正在为北京收集英伟达的信息。报道称，英伟达CEO黄仁勋与这名女商人保持了长达一年的密切关系。"
+   },
+   {
+    "s": "A",
+    "t": "中方否认相关指控。美国中期选举将于周二举行，这次选举将决定国会的控制权。选情背景包括人工智能、伊朗战争与物价。伊朗战争推高了油价和加油站价格，石油公司再次公布高额季度利润。芝加哥出生的教皇利奥十四世以美国公民身份邮寄了选票，成为首位在美国选举中投票的教皇，但没有透露投给谁。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是比利时。比利时议会即将表决一项有争议的新法律。该法律允许警方在怀疑有人窝藏无证移民时进入民宅搜查。据欧盟媒体EUobserver报道，这一法案在比利时社会引发争论。"
+   },
+   {
+    "s": "B",
+    "t": "现任联邦政府主张收紧移民政策，民宅搜查也牵涉住宅不受侵犯与人道援助之间的张力。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是德国与欧洲。默茨宣布，意愿联盟将于11月在柏林举行新的会议。会议旨在协调对乌克兰的援助。"
+   },
+   {
+    "s": "B",
+    "t": "意愿联盟是一批支持乌克兰的国家组成的松散集团，目前和谈也是各方关注的重点。"
+   },
+   {
+    "s": "A",
+    "t": "接下来看世界新闻。据BBC报道，在一次罕见的停火期间，数百人从俄罗斯占领的奥列什基撤离。仍有数百人选择留在这座前线城镇，尽管危险重重。"
+   },
+   {
+    "s": "B",
+    "t": "奥列什基位于乌克兰南部前线，居民长期生活在战火与封锁之下。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是美国。一名移民及海关执法局的探员在追捕过程中，驾车撞伤了一名无合法身份的墨西哥籍男子。检方称，这名男子腿部多处骨折，髋部也受伤。该探员已被起诉。"
+   },
+   {
+    "s": "B",
+    "t": "特朗普政府加强移民执法后，执法方式屡受质疑，地方检方起诉联邦探员并不常见。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是中国。中国商务部坚决反对美国联邦通信委员会的决定，该决定将自2028年起禁止在中国进行设备测试。商务部称，这一做法严重损害中国及其他贸易伙伴的利益，破坏中美经贸关系稳定，并可能扰乱供应链。"
+   },
+   {
+    "s": "B",
+    "t": "美国近年多次以国家安全为由，限制中国的电子设备和实验室。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是人工智能治理。据法国国际广播电台RFI报道，多家科技巨头已向媒体承诺，将推出新方案。该方案将禁止抓取新闻内容用于训练人工智能模型。"
+   },
+   {
+    "s": "B",
+    "t": "新闻机构与人工智能公司长期就训练数据的版权和补偿存在争议，欧盟人工智能法案也要求透明度。"
+   },
+   {
+    "s": "A",
+    "t": "最后是节日。今天是万圣节前夜，源自凯尔特人的萨温节。美国和英国的孩子们会装扮后挨家讨糖，人们也会雕刻南瓜灯、举办派对。今天不是公休日。明天是11月1日诸圣节，也是天主教纪念所有圣徒的节日。大多数商店会关门，可以提前备好食品。墓地附近可能较为拥挤，比利时和法国的人习惯在这一天前后祭扫亲人。"
+   },
+   {
+    "s": "A",
+    "t": "11月5日是英国的篝火之夜，纪念1605年的火药阴谋，人们会点篝火、放烟花。比利时不过这个节日。以上是今天的Dawn晨讯，感谢收听。"
+   }
+  ],
+  "en": [
+   {
+    "s": "A",
+    "t": "This is Dawn Daily Wire for Saturday, October 31st, 2026. Chinese President Xi Jinping met German President Steinmeier in Beijing. Xi said China has always regarded the EU as a partner, and that differences can be settled through dialogue. CCTV carried the account. China and the EU have clashed over trade, electric vehicles, export controls and investment screening."
+   },
+   {
+    "s": "A",
+    "t": "Meanwhile, German Chancellor Merz, on an Asia trip, warned against weaponising trade and called for a rules-based order. He proposed a global alliance on rules-based trade and named India as a partner for diversifying supply chains. The New York Times, citing US intelligence personnel, reports that officials believe a Chinese businesswoman was collecting information on Nvidia for Beijing."
+   },
+   {
+    "s": "A",
+    "t": "The paper says Nvidia CEO Jensen Huang had a close tie with her for a year. Beijing denies the allegations. US midterm elections are on Tuesday, and the vote will decide control of Congress. The backdrop includes AI, the Iran war and prices. The war has pushed up oil and pump prices, and oil companies have posted another quarter of very high profits."
+   },
+   {
+    "s": "A",
+    "t": "Pope Leo XIV, born in Chicago, mailed in his ballot as a US citizen. He became the first pope to vote in a US election, but did not say whom he backed. Now to Belgium. Parliament will vote on a divisive new law that would let police enter homes if they suspect someone is harbouring an undocumented migrant. EUobserver reports the vote, which has sparked debate in Belgian society."
+   },
+   {
+    "s": "B",
+    "t": "The federal government favours tighter migration policy, and home searches set the inviolability of the home against humanitarian help."
+   },
+   {
+    "s": "A",
+    "t": "Now to Germany and Europe. Merz has announced a new meeting of the Coalition of the Willing in November, to be held in Berlin. It will coordinate aid for Ukraine."
+   },
+   {
+    "s": "B",
+    "t": "The Coalition of the Willing is a loose group of countries that back Ukraine, and peace talks are a current focus."
+   },
+   {
+    "s": "A",
+    "t": "Now to the wider world. BBC reports that hundreds of people were evacuated from Russian-occupied Oleshky during a rare ceasefire. Hundreds more are understood to have stayed in the front-line town despite the danger."
+   },
+   {
+    "s": "B",
+    "t": "Oleshky lies on the southern front, and residents have lived under fire and isolation for a long time."
+   },
+   {
+    "s": "A",
+    "t": "Now to the United States. An ICE agent has been charged after hitting an undocumented Mexican man with a vehicle during a pursuit. Prosecutors say the man suffered multiple leg fractures and a hip injury."
+   },
+   {
+    "s": "B",
+    "t": "Enforcement methods have drawn scrutiny since the Trump administration stepped up immigration enforcement, and charges against a federal agent are unusual."
+   },
+   {
+    "s": "A",
+    "t": "Now to China. The Ministry of Commerce firmly opposes a US Federal Communications Commission decision to bar device testing in China from 2028. It says the move seriously harms the interests of China and other trading partners, and warns of supply chain disruption."
+   },
+   {
+    "s": "B",
+    "t": "Washington has repeatedly restricted Chinese electronics and labs on national security grounds."
+   },
+   {
+    "s": "A",
+    "t": "Now to AI governance. RFI reports that several tech giants have promised news media they will introduce a new scheme. The scheme aims to stop news content from being scraped to train AI models."
+   },
+   {
+    "s": "B",
+    "t": "Publishers and AI firms have long disputed copyright and compensation for training data, and the EU AI Act sets transparency duties."
+   },
+   {
+    "s": "A",
+    "t": "Finally, holidays. Today is Halloween, which grew from the Celtic festival of Samhain. In the US and UK, children dress up and go trick-or-treating. It is not a day off, but expect people in costume in Leuven. Tomorrow is All Saints' Day, a Catholic feast and a public holiday. Most shops will be closed, so stock up today."
+   },
+   {
+    "s": "A",
+    "t": "Cemeteries may be busy, as people lay chrysanthemums and candles on family graves in Belgium and France. On 5 November, Britain marks Bonfire Night with bonfires and fireworks, commemorating the failed Gunpowder Plot of 1605. Belgium does not observe it. That was the Dawn Daily Wire. Thanks for listening."
+   }
+  ]
+ },
+ "culture": [
+  {
+   "key": "2026-10-31:Halloween",
+   "date": "2026-10-31",
+   "en": "Halloween",
+   "zh": "万圣节前夜",
+   "countries": [
+    "US",
+    "GB",
+    "BE",
+    "DE"
+   ],
+   "public": false,
+   "intro": "万圣节源自凯尔特人的萨温节,后与基督教的诸圣节前夜融合。在美国和英国,孩子们会装扮并挨家讨糖,人们雕刻南瓜灯、办派对。在比利时和德国,这个节日更偏商业化和年轻人的聚会,习俗不如美英普遍。",
+   "intro_en": "Halloween grew from the Celtic festival of Samhain and merged with the Christian eve of All Saints' Day. In the US and UK, children dress up and go trick-or-treating, and people carve pumpkins and hold parties. In Belgium and Germany it is more commercial and youth-oriented, and less widely observed.",
+   "tips": "这不是休息日;在鲁汶,酒吧和学生聚会可能有主题活动,可留意街上的装扮人群。",
+   "tips_en": "It is not a day off; in Leuven, bars and student parties may have themed events, so expect people in costume.",
+   "countries_zh": [
+    "美国",
+    "英国",
+    "比利时",
+    "德国"
+   ],
+   "countries_en": [
+    "US",
+    "UK",
+    "Belgium",
+    "Germany"
+   ]
+  },
+  {
+   "key": "2026-11-01:All Saints' Day",
+   "date": "2026-11-01",
+   "en": "All Saints' Day",
+   "zh": "诸圣节",
+   "countries": [
+    "BE",
+    "FR"
+   ],
+   "public": true,
+   "intro": "诸圣节是天主教纪念所有圣徒的节日。在比利时和法国,人们习惯在这一天前后去墓地祭扫,在亲人墓前献上菊花和蜡烛。它也是法定公共假日,常与次日的万灵节一起被视为追思逝者的时间。",
+   "intro_en": "All Saints' Day is a Catholic feast honouring all saints. In Belgium and France, people visit cemeteries around this day and lay chrysanthemums and candles on family graves. It is a public holiday and, with All Souls' Day the day after, a time to remember the dead.",
+   "tips": "大多数商店会关门,今年11月1日是周日,可提前备好食品;墓地附近可能较为拥挤。",
+   "tips_en": "Most shops are closed; 1 November falls on a Sunday this year, so stock up ahead. Cemeteries may be busy.",
+   "countries_zh": [
+    "比利时",
+    "法国"
+   ],
+   "countries_en": [
+    "Belgium",
+    "France"
+   ]
+  },
+  {
+   "key": "2026-11-05:Bonfire Night",
+   "date": "2026-11-05",
+   "en": "Bonfire Night",
+   "zh": "篝火之夜",
+   "countries": [
+    "GB"
+   ],
+   "public": false,
+   "intro": "篝火之夜源于1605年的火药阴谋,一群天主教徒企图炸毁英国议会,盖伊·福克斯被捕。此后英国人在11月5日点篝火、放烟花,有时还会焚烧人偶,以纪念阴谋败露。人们常吃太妃苹果和烤土豆,孩子们也会拿着仙女棒玩。",
+   "intro_en": "Bonfire Night marks the failed Gunpowder Plot of 1605, when a group of Catholic conspirators tried to blow up the English Parliament and Guy Fawkes was caught. Each 5 November people in Britain light bonfires and set off fireworks, and sometimes burn effigies. Toffee apples, jacket potatoes and sparklers are common treats.",
+   "tips": "这不是公休日,比利时不过这个节日。想体验的话,可以留意英国社区或校内英国学生组织的烟花活动,很多活动会安排在附近的周末。",
+   "tips_en": "It is not a day off, and Belgium does not observe it. If you want to see it, look out for UK community or student-society fireworks events, many of which are held on a nearby weekend.",
+   "countries_zh": [
+    "英国"
+   ],
+   "countries_en": [
+    "UK"
+   ]
+  },
+  {
+   "key": "2026-11-11:Armistice Day",
+   "date": "2026-11-11",
+   "en": "Armistice Day",
+   "zh": "一战停战纪念日",
+   "countries": [
+    "BE",
+    "FR"
+   ],
+   "public": true,
+   "countries_zh": [
+    "比利时",
+    "法国"
+   ],
+   "countries_en": [
+    "Belgium",
+    "France"
+   ]
+  },
+  {
+   "key": "2026-11-11:Veterans Day",
+   "date": "2026-11-11",
+   "en": "Veterans Day",
+   "zh": "退伍军人节",
+   "countries": [
+    "US"
+   ],
+   "public": true,
+   "countries_zh": [
+    "美国"
+   ],
+   "countries_en": [
+    "US"
+   ]
+  },
+  {
+   "key": "2026-11-11:St Martin's Day and start of Carnival season",
+   "date": "2026-11-11",
+   "en": "St Martin's Day and start of Carnival season",
+   "zh": "圣马丁节与狂欢节季开幕",
+   "countries": [
+    "DE",
+    "BE"
+   ],
+   "public": false,
+   "countries_zh": [
+    "德国",
+    "比利时"
+   ],
+   "countries_en": [
+    "Germany",
+    "Belgium"
+   ]
+  }
+ ],
+ "greeting": "brief-2026-10-31-greeting-zh.mp3",
+ "greeting_en": "brief-2026-10-31-greeting-en.mp3",
+ "footer": "本期由 AI 根据各家新闻源整理,摘要为转述,细节以原文为准。",
+ "footer_en": "Compiled with AI from public news feeds. Summaries are paraphrased; check the original articles for detail.",
+ "audio": {
+  "zh": "brief-2026-10-31-zh.mp3",
+  "en": "brief-2026-10-31-en.mp3"
+ }
+}</script>
+<!-- BRIEF-DATA:END -->
+
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('brief-data').textContent);
+  var $ = function(id){return document.getElementById(id)};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function rich(s){return esc(s).replace(/&lt;b&gt;/g,'<b>').replace(/&lt;\/b&gt;/g,'</b>')}
+  var UI = {
+    zh:{top:'今天最该知道的三件事',ag:'接下来要盯的日程',today:' 今天',ctx:'前情提要 · BACKGROUND',src:'来源',deskPlay:'▶ 只听这一版',
+        play:'▶ 朗读全部',pause:'❚❚ 暂停',resume:'▶ 继续',stop:'停止',rate:'语速',idle:'点击朗读,用电脑自带的语音播报全部内容',
+        reading:'正在朗读',stopped:'已停止。点击朗读重新开始',edition:'每日 07:00 布鲁塞尔时间更新',at:'出刊时 ',
+        foot:'本期由 AI 根据各家新闻源整理,摘要为转述,细节以原文为准。朗读使用你设备自带的语音;用 Edge 打开时中英文语音最自然。'},
+    en:{top:'Three things to know today',ag:'Coming up',today:' today',ctx:'BACKGROUND · 前情提要',src:'Sources',deskPlay:'▶ Play this desk',
+        play:'▶ Read all',pause:'❚❚ Pause',resume:'▶ Resume',stop:'Stop',rate:'Speed',idle:'Press play to hear the whole brief with your device voices',
+        reading:'Now reading',stopped:'Stopped. Press play to start again',edition:'Updated daily at 07:00 Brussels time',at:'At press time ',
+        foot:'Compiled with AI from public news feeds. Summaries are paraphrased; check the original articles for detail. Read-aloud uses your device voices; Edge has the most natural ones.'}
+  };
+  var mode='both';
+  try{var m=localStorage.getItem('brief-lang'); if(m==='zh'||m==='en'||m==='both') mode=m;}catch(e){}
+  var ed = new Date(D.editionTime);
+  function hm(tz){try{return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:tz}).format(ed)}catch(e){return '--:--'}}
+
+  function cultureHtml(L, showZh, showEn){
+    var C=D.culture||[]; if(!C.length) return '';
+    var en=mode==='en', t0=new Date(D.edition+'T12:00:00');
+    var wdz=['周日','周一','周二','周三','周四','周五','周六'], wde=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    function md(iso){return iso.slice(5)}
+    var h='<section class="desk" id="culture"><div class="desk-head"><h2>'+(en?'Holidays':'节日与假期')+'<small>HOLIDAYS · '+(en?'NEXT 3 WEEKS':'未来三周')+'</small></h2>'+
+      ''+'</div><div class="cult-list">';
+    C.forEach(function(x,i){
+      var d=new Date(x.date+'T12:00:00'), days=Math.round((d-t0)/864e5);
+      var rel = days===0?(en?'today':'今天'):days===1?(en?'tomorrow':'明天'):(en?'in '+days+' days':days+' 天后');
+      var when='<div class="when">'+md(x.date)+(x.end?'~'+md(x.end):'')+'<small>'+(en?wde[d.getDay()]:wdz[d.getDay()])+' · <span class="'+(days<=2?'soon':'')+'">'+rel+'</span></small></div>';
+      var nmMain = en? x.en : x.zh, nmAlt = en? x.zh : x.en;
+      var ccs=(en?x.countries_en:x.countries_zh)||x.countries||[];
+      var body='';
+      if(showZh&&x.intro) body+='<p>'+esc(x.intro)+'</p>';
+      if(showEn&&x.intro_en) body+='<p lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(x.intro_en)+'</p>';
+      var tip='';
+      if(showZh&&x.tips) tip+='<div>'+esc(x.tips)+'</div>';
+      if(showEn&&x.tips_en) tip+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(x.tips_en)+'</div>';
+      h+='<article class="hol" id="h-'+i+'">'+when+'<div class="what"><div class="name">'+esc(nmMain)+(nmAlt&&nmAlt!==nmMain?'<span class="alt">'+esc(nmAlt)+'</span>':'')+'</div>'+
+        '<div class="meta">'+(x.public?'<span class="off">'+(en?'Public holiday':'法定假日')+'</span>':'')+ccs.map(function(c){return '<span class="cc">'+esc(c)+'</span>'}).join('')+'</div>'+
+        body+(tip?'<div class="tip"><b>'+(en?'Tip':'实用提示')+'</b> '+tip+'</div>':'')+'</div></article>';
+    });
+    return h+'</div></section>';
+  }
+
+  function render(){
+    var L = UI[mode==='en'?'en':'zh'], showZh = mode!=='en', showEn = mode!=='zh';
+    document.documentElement.lang = mode==='en'?'en':'zh-CN';
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed', b.dataset.lang===mode)});
+    var dt=new Date(D.edition+'T12:00:00');
+    var wk = mode==='en' ? dt.toLocaleDateString('en-GB',{weekday:'long'}) : '星期'+['日','一','二','三','四','五','六'][dt.getDay()];
+    $('dateline').textContent = D.edition.replace(/-/g,' · ')+'  '+wk+'  ·  '+L.edition;
+    var zones=[['布鲁塞尔','Brussels','Europe/Brussels'],['伦敦','London','Europe/London'],['华盛顿','Washington','America/New_York'],['北京','Beijing','Asia/Shanghai']];
+    $('clocks').innerHTML = L.at + zones.map(function(z){return (mode==='en'?z[1]:z[0])+' <b>'+hm(z[2])+'</b>'}).join('  ');
+    $('top-h').textContent=L.top; $('ag-h').textContent=L.ag;
+    $('top').innerHTML = D.top.map(function(t,i){
+      var en=(D.top_en||[])[i]||'';
+      return '<li><div>'+(showZh?'<span>'+esc(t)+'</span>':'')+(showEn&&en?'<span class="en-line'+(showZh?' sub':'')+'" lang="en">'+esc(en)+'</span>':'')+'</div></li>'}).join('');
+    var todayMD=D.edition.slice(5);
+    $('agenda').innerHTML = D.agenda.map(function(a){
+      var txt = mode==='en'?(a.en||a.t):(mode==='zh'?a.t:a.t+(a.en?'<span class="en-line sub" lang="en">'+esc(a.en)+'</span>':''));
+      if(mode!=='both') txt=esc(txt); else txt=esc(a.t)+(a.en?'<span class="en-line sub" lang="en">'+esc(a.en)+'</span>':'');
+      return '<tr'+(a.d===todayMD?' class="today"':'')+'><td class="d" data-today="'+L.today+'">'+esc(a.d)+'</td><td>'+txt+'</td></tr>'}).join('');
+    var listen = mode==='en' ? 'Listen to ' : '收听';
+    $('toc').innerHTML = '<span class="chip"><a href="#highlights">'+(mode==='en'?'Top stories':'要点')+'</a></span>' +
+      D.desks.map(function(d,di){
+        if(!d.items.length) return '';
+        var nm = esc(mode==='en'?(d.nameEn||d.name):d.name);
+        return '<span class="chip" data-chip="'+di+'"><a href="#'+d.id+'">'+nm+'<small>'+d.items.length+'</small></a>'+
+          '</span>'}).join('');
+    var C=D.culture||[];
+    if(C.length){var cn=mode==='en'?'Holidays':'节日';
+      $('toc').innerHTML += '<span class="chip" data-chip="culture"><a href="#culture">'+cn+'<small>'+C.length+'</small></a>'+
+        '</span>';}
+    var html='';
+    D.desks.forEach(function(d,di){
+      var nm = mode==='en'?(d.nameEn||d.name):d.name, tzl = mode==='en'?(d.tzLabelEn||d.tzLabel):d.tzLabel;
+      html += '<section class="desk" id="'+d.id+'"><div class="desk-head"><h2>'+esc(nm)+'<small>'+esc(d.en)+'</small></h2>'+
+        '<div class="meta"><span>'+esc(tzl)+(d.tz?' '+hm(d.tz):'')+'</span></div></div>';
+      d.items.forEach(function(it,ii){
+        var h = mode==='en' ? '<h3 lang="en">'+esc(it.en)+'</h3><div class="en">'+esc(it.zh)+'</div>' : '<h3>'+esc(it.zh)+'</h3><div class="en" lang="en">'+esc(it.en)+'</div>';
+        var body='', ctx='', why='';
+        if(showZh){ body+='<p>'+esc(it.body)+'</p>'; ctx+='<div>'+esc(it.ctx)+'</div>'; if(it.why) why+='<div>'+rich(it.why)+'</div>'; }
+        if(showEn&&it.body_en){ body+='<p lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(it.body_en)+'</p>'; ctx+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(it.ctx_en)+'</div>'; if(it.why_en) why+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+rich(it.why_en)+'</div>'; }
+        html += '<article class="item" id="i-'+di+'-'+ii+'">'+h+body+
+          '<div class="ctx"><span class="lab">'+L.ctx+'</span>'+ctx+'</div>'+
+          (why?'<div class="why">'+why+'</div>':'')+
+          '<div class="tags">'+it.tags.map(function(t){return '<span>'+esc(t)+'</span>'}).join('')+'</div>'+
+          '<div class="src">'+L.src+' '+it.sources.map(function(s){return '<a href="'+esc(s.u)+'" target="_blank" rel="noopener">'+esc(s.n)+'</a>'}).join('')+'</div></article>';
+      });
+      html+='</section>';
+    });
+    html += cultureHtml(L, showZh, showEn);
+    $('desks').innerHTML=html;
+    $('foot').textContent = (mode==='en' ? (D.footer_en!=null?D.footer_en:L.foot) : (D.footer!=null?D.footer:L.foot));
+  }
+
+  /* ---------- podcast player ---------- */
+  var A = D.audio || {}, podLang = null;
+  function curPod(){ var l = podLang || (mode==='en' ? 'en' : 'zh'); return A[l] ? l : (A.zh ? 'zh' : (A.en ? 'en' : null)); }
+  function podFile(){ var l = curPod(); return l ? A[l] : null; }
+  document.querySelectorAll('#pod-lang button').forEach(function(b){b.addEventListener('click',function(){ podLang=b.dataset.pl; setPlayer(); })});
+  function setPlayer(){
+    var f=podFile(), el=$('pod');
+    $('pod-lang').hidden = !(A.zh && A.en);
+    document.querySelectorAll('#pod-lang button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.pl===curPod()); });
+    if(!f){ $('player').hidden=true; document.body.style.paddingBottom='24px'; return; }
+    $('player').hidden=false;
+    $('pl-label').textContent = mode==='en' ? "Today's show" : '今日播客';
+    if(el.getAttribute('src')!==f) el.setAttribute('src', f);
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){
+    if(mode===b.dataset.lang) return; mode=b.dataset.lang; podLang=null;
+    try{localStorage.setItem('brief-lang',mode)}catch(e){} render(); setPlayer();
+  })});
+  render(); setPlayer();
+})();
+</script>
+
+</body>
+</html>
