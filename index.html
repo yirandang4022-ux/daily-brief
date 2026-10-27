@@ -1,0 +1,1404 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><script>(function(){var I='2026-11-06';function c(){try{fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(v){if(v&&v.date&&v.date>I&&location.search.indexOf('v='+v.date)<0)location.replace(location.pathname+'?v='+v.date)}).catch(function(){})}catch(e){}}c();addEventListener('pageshow',function(e){if(e.persisted)c()});document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')c()});})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dawn 晨讯</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap"></noscript>
+<style>
+/* Layout: a morning wire. Masthead with world clocks, a "today's three" strip, a week agenda, then one column of regional desks; a fixed audio bar reads the whole brief aloud. */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#121a24; --muted:#586474; --rule:#d3dae2;
+  --accent:#2448b8; --accent-soft:#e3e9fb; --onair:#b97a06; --onair-soft:#fbf0d9;
+  --ctx:#f4f6f9;
+  --f-display:"Noto Serif SC","Songti SC","SimSun",serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf1; --muted:#93a1b1; --rule:#273341;
+  --accent:#88a3ff; --accent-soft:#1e2a4a; --onair:#f0b43c; --onair-soft:#3a2d12; --ctx:#121a22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf1; --muted:#93a1b1; --rule:#273341;
+  --accent:#88a3ff; --accent-soft:#1e2a4a; --onair:#f0b43c; --onair-soft:#3a2d12; --ctx:#121a22; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:780px;margin:0 auto;padding-block:28px 24px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* masthead */
+.mast{display:grid;gap:14px;border-bottom:3px solid var(--ink);padding-bottom:16px}
+.mast h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,7vw,52px);line-height:1.05;margin:0;letter-spacing:.02em}
+.mast h1 span{font-family:var(--f-mono);font-weight:600;font-size:.42em;letter-spacing:.12em;color:var(--accent);vertical-align:.55em;margin-left:.4em}
+.dateline{font-family:var(--f-mono);font-size:13px;color:var(--muted);letter-spacing:.04em}
+.clocks{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.clocks b{color:var(--ink);font-weight:600}
+
+/* top three */
+.top{margin-top:18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.top ol{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:t}
+.top li{counter-increment:t;display:grid;grid-template-columns:2.2em 1fr;gap:4px;font-size:17px;line-height:1.6}
+.top li::before{content:counter(t);font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.1;color:var(--accent)}
+
+/* agenda */
+.agenda{margin-top:22px;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:14px 16px}
+.agenda table{width:100%;border-collapse:collapse;font-size:14px}
+.agenda td{padding:5px 0;vertical-align:top;border-top:1px dashed var(--rule)}
+.agenda tr:first-child td{border-top:0}
+.agenda td.d{font-family:var(--f-mono);white-space:nowrap;padding-right:14px;color:var(--accent);font-variant-numeric:tabular-nums;width:1%}
+.agenda .today td.d::after{content:"";color:var(--onair);font-family:var(--f-body);font-weight:700}
+
+/* sections */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--bg);border-bottom:1px solid var(--rule);
+  display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-block:10px;margin-top:0}
+nav.toc::-webkit-scrollbar{display:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:16;background:var(--bg)}
+.chip{flex:0 0 auto;display:inline-flex;align-items:stretch;border:1px solid var(--rule);background:var(--surface);border-radius:999px;overflow:hidden}
+.chip a{font-size:14px;text-decoration:none;color:var(--ink);padding:5px 6px 5px 12px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.chip a small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.chip a:only-child{padding-right:12px}
+.chip a{padding-right:12px}
+.player audio{flex:1 1 260px;min-width:0;width:100%;height:40px}
+.pl-label{font-weight:600;font-size:14px;color:var(--ink);white-space:nowrap}
+.pod-lang{display:inline-flex;border:1px solid var(--ink);border-radius:999px;overflow:hidden;flex:0 0 auto}
+.pod-lang button{font:500 13px var(--f-body);background:transparent;color:var(--ink);border:0;padding:3px 10px;cursor:pointer}
+.pod-lang button+button{border-left:1px solid var(--ink)}
+.pod-lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chip button{border:0;border-left:1px solid var(--rule);background:transparent;color:var(--accent);font-size:12px;padding:0 10px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip button:hover,.chip.on button{background:var(--accent);color:var(--surface)}
+.chip.on{border-color:var(--accent)}
+section.desk,#highlights{scroll-margin-top:72px}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+section.desk{margin-top:38px}
+.desk-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--ink);padding-bottom:6px}
+.desk-head h2{font-family:var(--f-display);font-weight:900;font-size:26px;margin:0;letter-spacing:.03em}
+.desk-head h2 small{font-family:var(--f-mono);font-weight:400;font-size:12.5px;color:var(--muted);letter-spacing:.08em;margin-left:10px}
+.desk-head .meta{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.btn-mini{font:500 13px var(--f-body);border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:999px;padding:2px 10px;cursor:pointer}
+.btn-mini:hover{border-color:var(--accent);color:var(--accent)}
+
+article.item{padding:18px 0 20px;border-bottom:1px solid var(--rule);display:grid;gap:8px;scroll-margin-top:72px;transition:background .2s}
+article.item.reading{background:var(--onair-soft);box-shadow:-10px 0 0 var(--onair-soft),10px 0 0 var(--onair-soft)}
+article.item h3{font-family:var(--f-display);font-weight:600;font-size:20px;line-height:1.45;margin:0;text-wrap:balance}
+article.item .en{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);line-height:1.5}
+article.item p{margin:0;max-width:65ch}
+.ctx{background:var(--ctx);border-left:3px solid var(--accent);padding:10px 14px;font-size:15px;color:var(--ink);max-width:65ch}
+.ctx .lab{display:block;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;color:var(--accent);margin-bottom:2px}
+.why{font-size:15px;color:var(--muted)}
+.why b{color:var(--ink);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-family:var(--f-mono);font-size:12px;background:var(--accent-soft);color:var(--accent);padding:1px 8px;border-radius:3px}
+.src{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.src a{text-decoration:none;border-bottom:1px solid currentColor}
+
+/* holidays */
+.cult-list{display:grid;gap:0}
+.hol{display:grid;grid-template-columns:6.4em 1fr;gap:4px 14px;padding:14px 0;border-bottom:1px solid var(--rule);scroll-margin-top:72px;transition:background .2s}
+.hol.reading{background:var(--onair-soft);box-shadow:-10px 0 0 var(--onair-soft),10px 0 0 var(--onair-soft)}
+.hol .when{font-family:var(--f-mono);font-size:13px;color:var(--accent);line-height:1.35;font-variant-numeric:tabular-nums}
+.hol .when small{display:block;color:var(--muted);font-size:11.5px}
+.hol .when .soon{color:var(--onair);font-weight:600}
+.hol .what{min-width:0;display:grid;gap:6px}
+.hol .name{font-family:var(--f-display);font-weight:600;font-size:17px;line-height:1.4;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.hol .name .alt{font-family:var(--f-mono);font-weight:400;font-size:12px;color:var(--muted)}
+.hol .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.cc{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--rule);color:var(--muted);padding:0 6px;border-radius:3px}
+.off{font-size:12px;font-weight:600;color:var(--onair);background:var(--onair-soft);padding:0 8px;border-radius:3px}
+.hol p{margin:0;max-width:65ch;font-size:15px}
+.hol .tip{font-size:14px;color:var(--muted);max-width:65ch}
+.hol .tip b{color:var(--ink);font-weight:500}
+@media (max-width:480px){.hol{grid-template-columns:1fr}.hol .when small{display:inline;margin-left:6px}}
+footer{margin-top:40px;font-size:13px;color:var(--muted);max-width:65ch}
+
+/* player */
+.player{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--rule);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.player-in{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play{font:700 15px var(--f-body);background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:8px 18px;cursor:pointer;min-width:7.5em}
+.play.on{background:var(--onair);color:#1a1205}
+.stop{font:500 14px var(--f-body);background:transparent;color:var(--ink);border:1px solid var(--rule);border-radius:999px;padding:7px 14px;cursor:pointer}
+.player select{font:14px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:5px 6px}
+.now{flex:1 1 200px;min-width:0;font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now b{color:var(--onair)}
+.mast-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.lang{display:inline-flex;border:1px solid var(--ink);border-radius:999px;overflow:hidden}
+.lang button{font:500 13px var(--f-body);background:transparent;color:var(--ink);border:0;padding:3px 12px;cursor:pointer}
+.lang button+button{border-left:1px solid var(--ink)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.en-line{display:block}
+.sub{color:var(--muted);font-size:.92em}
+.en-p{max-width:65ch;line-height:1.65}
+p.en-p{margin:0}
+.ctx .en-p.sub{margin-top:8px;padding-top:8px;border-top:1px dashed var(--rule)}
+.why .en-p.sub{margin-top:2px}
+.top li .sub{font-size:15px;margin-top:2px}
+.agenda .today td.d::after{content:attr(data-today)}
+.agenda td .sub{font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:480px){.desk-head h2{font-size:22px} article.item h3{font-size:18px}}
+</style>
+
+<style>
+body{margin:0}
+.audio-files{margin-top:22px;display:grid;gap:8px}
+.audio-files .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.audio-files .row span{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;color:var(--muted);min-width:4em}
+.audio-files audio{flex:1 1 240px;max-width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-top"><div class="dateline" id="dateline"></div><div class="lang" role="group" aria-label="Language 语言"><button type="button" data-lang="zh">中文</button><button type="button" data-lang="both">双语</button><button type="button" data-lang="en">EN</button></div></div>
+    <h1>Dawn 晨讯<span>DAILY WIRE</span></h1>
+    <div class="clocks" id="clocks" aria-label="出刊时各地时间"></div>
+  </header>
+  <nav class="toc" id="toc" aria-label="版块导航 Sections"></nav>
+
+  <section class="top" id="highlights" aria-labelledby="top-h">
+    <div class="eyebrow" id="top-h"></div>
+    <ol id="top"></ol>
+  </section>
+
+  <section class="agenda" aria-labelledby="ag-h">
+    <div class="eyebrow" id="ag-h" style="margin-bottom:6px"></div>
+    <table><tbody id="agenda"></tbody></table>
+  </section>
+
+  
+  <main id="desks"></main>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="player" role="region" aria-label="播客 Podcast" id="player" hidden>
+  <div class="player-in">
+    <span class="pl-label" id="pl-label">今日播客</span>
+    <div class="pod-lang" id="pod-lang" role="group" aria-label="播客语言 Podcast language"><button type="button" data-pl="zh">中文</button><button type="button" data-pl="en">EN</button></div>
+    <audio id="pod" controls preload="none"></audio>
+  </div>
+</div>
+
+<!-- BRIEF-DATA:START -->
+<script id="brief-data" type="application/json">{
+ "edition": "2026-11-06",
+ "editionTime": "2026-11-06T07:00:00+01:00",
+ "top": [
+  "美国中期选举后民主党掌控国会，对AI和数据中心监管的担忧引发全球科技股暴跌。",
+  "欧盟与中国达成协议数周后，双方在布鲁塞尔互放狠话，中方又发起两项对欧反倾销调查。",
+  "俄乌在空袭中重启布鲁塞尔重建与安全会谈，意大利要求欧盟在和谈中只有一个声音。"
+ ],
+ "top_en": [
+  "After the US midterms gave Democrats control of Congress, fears of tighter AI and data centre rules set off a global tech stock rout.",
+  "Weeks after the EU-China deal, both sides traded threats in Brussels and China opened two new anti-dumping probes on EU goods.",
+  "Russia and Ukraine kept up airstrikes as reconstruction and security talks resumed in Brussels, and Italy wants one EU voice in any peace talks."
+ ],
+ "agenda": [
+  {
+   "d": "11-11",
+   "t": "比利时、法国休战日，美国退伍军人节，德国与比利时圣马丁节",
+   "en": "Armistice Day (BE, FR), Veterans Day (US), St Martin's Day (DE, BE)"
+  },
+  {
+   "d": "11-19",
+   "t": "德国总理默茨希望在峰会上解决对乌援助补给问题",
+   "en": "Summit where Merz hopes to clear Ukraine aid resupply snags"
+  },
+  {
+   "d": "11-20",
+   "t": "特朗普凯旋门工程14天禁令大致到期，法院将再作审理",
+   "en": "Roughly when the 14-day block on Trump's arch expires"
+  }
+ ],
+ "desks": [
+  {
+   "id": "be",
+   "name": "比利时",
+   "nameEn": "Belgium",
+   "en": "BELGIUM",
+   "tz": "Europe/Brussels",
+   "tzLabel": "布鲁塞尔",
+   "tzLabelEn": "Brussels",
+   "items": [
+    {
+     "zh": "布鲁塞尔重启乌克兰重建与安全会谈，意大利要求欧盟「一个声音」",
+     "en": "Brussels talks on Ukraine resume as Italy demands a single EU voice",
+     "body": "俄乌在互相空袭的同时，重建与安全问题会谈在布鲁塞尔恢复。欧盟正牵头讨论乌克兰战后前景，同时推进乌方改革议程。意大利则要求欧盟在乌克兰和平谈判中只用一个声音发言。",
+     "body_en": "Russia and Ukraine kept striking each other while talks on reconstruction and security resumed in Brussels. The EU is leading discussion of Ukraine's post-war future alongside its reform agenda. Italy is calling for the EU to speak with one voice in any peace talks.",
+     "ctx": "乌克兰战争进入第五个年头，美国推动的和谈时断时续，欧洲担心被排除在谈判之外。布鲁塞尔是欧盟援乌和重建协调的中心。",
+     "ctx_en": "The war is in its fifth year, US-led peace efforts have moved in fits and starts, and Europeans worry about being left out. Brussels is the hub for EU aid and reconstruction planning.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Ukraine",
+      "EU",
+      "peace talks"
+     ],
+     "topics": [
+      "安全与冲突",
+      "中国外交"
+     ],
+     "thread": "乌克兰和谈",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "乌克兰"
+      },
+      {
+       "type": "国家",
+       "name": "俄罗斯"
+      },
+      {
+       "type": "国家",
+       "name": "意大利"
+      },
+      {
+       "type": "机构",
+       "name": "欧盟"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Los Angeles Times",
+       "u": "https://news.google.com/rss/articles/CBMi0wFBVV95cUxQeEdINjRyd1RkVmV4d1RmSjV5MVNBUmpfSEZtNVVwVldRRWxMS08ydzhreW5rbXhDWmtDTjZpUFhSeXR0cUFreC1hSV9JRy1TNk83Q1NSZTV2aEdrV3h1RW9wbDVnYU9XV2VyVmwyX3k2dTBieE1uZlJkbHJ6QUdJVVpWZ2dnc0JQNTItQUdkcV9PX3Fmd19vdWVPMlc3MlhrY1RvZ1JlZVU0SWtvd3l3aE94OVBHWXlDXzJ0SVJRZzlFUFg4QUVvTTFOWnRad0lMblJr?oc=5"
+      },
+      {
+       "n": "Brussels Signal",
+       "u": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNR2JpUTFlZE5ab2h4Skl6NTFMT0docGNTMWEyWWpjUUsxRl9oLWZ1Z1I4dkhWQXgtS0NOY1R3Zm9ZaGxXTmt0eUMxaFB3Um0xd2tfOGJ3Z3BpU3BqRV8wMGp6ZGYtWGphVUFVdUxubURUOElEYWdYRFN0N2RXdUJzMW90b3lJU2RuSlJtS2lvTDg?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "圣赫内修斯-罗德居民征集400签名，要求就采砂场议题辩论",
+     "en": "Sint-Genesius-Rode residents gather 400 signatures for sand quarry debate",
+     "body": "圣赫内修斯-罗德（Sint-Genesius-Rode）居民征集到400多个签名，要求市政委员会讨论Zandgroeve采砂场的未来，地点靠近已破产的家具公司Vastiau-Godeau。居民主张不要在这片自然保护区建房。这是该市首次有居民发起的议题被列入议程。",
+     "body_en": "Residents of Sint-Genesius-Rode collected over 400 signatures to get the council to discuss the future of the Zandgroeve sand quarry, near the bankrupt furniture firm Vastiau-Godeau. They say no building should happen in this nature area. It is the first time a resident-initiated item has made the council agenda there.",
+     "ctx": "弗拉芒地区的市镇近年引入公民动议机制，居民可凭签名把议题送入市议会。",
+     "ctx_en": "Flemish municipalities have introduced citizens' initiative rules that let residents put items on the council agenda with enough signatures.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "citizen initiative",
+      "nature",
+      "Flanders"
+     ],
+     "topics": [
+      "比利时本地生活",
+      "基层治理"
+     ],
+     "thread": "比利时地方治理",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "圣赫内修斯-罗德"
+      }
+     ],
+     "sources": [
+      {
+       "n": "VRT NWS",
+       "u": "https://vrtnws.be/p.aDepxo90d"
+      }
+     ]
+    },
+    {
+     "zh": "根特Wiedauwkaai改造完工，自行车道和公交专用道启用",
+     "en": "Ghent's Wiedauwkaai redesign finished, with safer cycling and a bus lane",
+     "body": "根特Wiedauwkaai（N458）改造在动工10个月后完成。Nieuwevaart与铁路之间的路段新增舒适的自行车道、安全的过街点和通往根特方向的公交专用道。Farys同时铺设了雨污分流的排水系统。",
+     "body_en": "The redesign of Wiedauwkaai (N458) in Ghent is done ten months after work began. The stretch between the Nieuwevaart and the railway now has comfortable cycle paths, safe crossings and a separate bus lane towards Ghent. Farys also laid a separated sewer system.",
+     "ctx": "弗拉芒各地在道路改造中常把自行车安全与排水改造一并进行。",
+     "ctx_en": "Flemish road works often combine cycling safety upgrades with sewer separation.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Ghent",
+      "cycling",
+      "infrastructure"
+     ],
+     "topics": [
+      "比利时本地生活"
+     ],
+     "thread": "比利时地方治理",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "根特"
+      },
+      {
+       "type": "机构",
+       "name": "Farys"
+      }
+     ],
+     "sources": [
+      {
+       "n": "VRT NWS",
+       "u": "https://vrtnws.be/p.LNWZkBQ7k"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "de",
+   "name": "德国与欧洲",
+   "nameEn": "Germany & Europe",
+   "en": "GERMANY · DW",
+   "tz": "Europe/Berlin",
+   "tzLabel": "柏林",
+   "tzLabelEn": "Berlin",
+   "items": [
+    {
+     "zh": "默茨：欧洲必须储备关键原材料",
+     "en": "Merz: Europe must stockpile critical raw materials",
+     "body": "据路透社报道，德国总理默茨表示欧洲需要储备关键原材料。这一表态出现在欧洲对稀土等供应链依赖受到关注之际。",
+     "body_en": "Reuters reports that German Chancellor Merz said Europe must stockpile critical raw materials. The remark comes as Europe's dependence on supply chains for items like rare earths is under scrutiny.",
+     "ctx": "中国对稀土等关键材料实施出口管制，促使欧盟讨论战略储备和多元化来源。",
+     "ctx_en": "Chinese export controls on rare earths and other critical materials have pushed the EU to discuss strategic stockpiles and diversified sourcing.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Merz",
+      "raw materials",
+      "supply chain"
+     ],
+     "topics": [
+      "贸易与关税",
+      "产业政策与补贴"
+     ],
+     "thread": "德国对华政策",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "默茨"
+      },
+      {
+       "type": "国家",
+       "name": "德国"
+      },
+      {
+       "type": "机构",
+       "name": "欧盟"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Reuters",
+       "u": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNclVnUk5XQ0pnbkdLZGlleGtVVXRrRnBEUWRuLXNMUHNSQmsxYzJYUzJqUkZ4ZVk3bDNwOWlsSDFKUjlOQ2RXMWg4eGdDLXF1Y3RFNDIwaEN4WHdlUUs3aHhHdXpYY1FfUUFzc09hN3lJc1l5YWt3WnlmWlVNTnFtYTE2WnRlcXJKZFBEMkRLdmRrZ2JQQWV5eWVOSGpFOW5rNFo2NGphVGFzTjhGUkJvVA?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "默茨的乌克兰「联系成员资格」设想在欧盟内部引发分歧",
+     "en": "EU split over Merz's 'associate membership' idea for Ukraine",
+     "body": "据Politico报道，默茨为乌克兰提出的「联系成员资格」设想在欧盟内部看法不一。默茨还承认对乌军援补给偶有卡壳，打算在11月19日的峰会上设法解决。",
+     "body_en": "Politico reports the EU is divided over Merz's idea of 'associate membership' for Ukraine. Merz also admitted occasional snags in resupplying Ukraine and plans to try to clear them at a 19 November summit.",
+     "ctx": "乌克兰2022年获得欧盟候选国地位，但入盟进程受制于个别成员国的反对和改革要求。",
+     "ctx_en": "Ukraine became an EU candidate in 2022, but accession has been held back by objections from some members and reform demands.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Ukraine",
+      "EU enlargement",
+      "Germany"
+     ],
+     "topics": [
+      "安全与冲突",
+      "其他"
+     ],
+     "thread": "乌克兰和谈",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "默茨"
+      },
+      {
+       "type": "国家",
+       "name": "乌克兰"
+      },
+      {
+       "type": "机构",
+       "name": "欧盟"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Українська правда",
+       "u": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE1LRkVFS3N6Y2l6Y0lfaU5VVThidXJvQ3Bsb2Vnc29VS21WclprXzRZRFlobWxKRko1anRMRUgyT25Ka1FVMWtaU180TFNuU1Q3bWpWUTFtMjQ1ZXVCbjctS3A3cXrSAXBBVV95cUxNWkZmOTVJcHRXTG5peEZpMnNyWXV4eEt1a1VPT0JuX1ZQdFVnNkM4NUt6OUxBSjRaejJiV2RmSGViVlBoWDZrR0QxSm9GYzhiUGZXUTNfTk5XcTJpS2RZQ0h6a2hSQWpHb2dvQVd6Q21f?oc=5"
+      },
+      {
+       "n": "Euromaidan Press",
+       "u": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxNalhUekNBU05ZdzVPM2t6UEtkUHFCNWZTZm94MF8zUG92VjQ4VGt0NDFWdklVd0hXLUtVYjZlVkFMS1dUMGZrc0lLbzB4VGEtdDlJUEh5ZUQzdzJPNkFPVU8xbzIydnM1UWFUNlh3WGljMENZVGNHYXBuNXFpbFZIN0JnQllkcWZhdWFPYTNwbHNWUEswREFRVy0waFlVQ2VOWjV1UWVCenFUcHFLQ0NhNDQ3ejJpcGQxZHdJdHJuSEI0Tm83Vl9CLWxiY2g3THVvTGJtQ2pEeEhZcXdYSGdBMHBLMGd4OW55ZkFobg?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "德国Gen Z骚乱引发融合与偏见之争",
+     "en": "Germany's Gen Z unrest sparks debate on integration and bias",
+     "body": "德国近期的Gen Z骚乱引发政治辩论：能否谈论融合问题，又不让整个群体蒙上嫌疑。争论集中在如何区分具体问题和对群体的污名化。",
+     "body_en": "Recent Gen Z riots in Germany have prompted a debate on whether the country can discuss integration problems without casting suspicion on whole groups. The argument centres on separating concrete problems from stigma.",
+     "ctx": "移民与融合长期是德国政治的敏感议题，也影响各党派的选情。",
+     "ctx_en": "Migration and integration have long been sensitive in German politics and shape party fortunes.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Germany",
+      "integration",
+      "protest"
+     ],
+     "topics": [
+      "移民与边境",
+      "劳工与抗议"
+     ],
+     "thread": "德国社会争议",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "德国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/germany-s-gen-z-protests-spark-debate-on-integration-bias/a-79868497?maca=en-rss-en-ger-1023-rdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "world",
+   "name": "世界",
+   "nameEn": "World",
+   "en": "WORLD · BBC",
+   "tz": "Europe/London",
+   "tzLabel": "伦敦",
+   "tzLabelEn": "London",
+   "items": [
+    {
+     "zh": "欧洲一周内第二次遭遇虚假炸弹威胁，至少21个航班受影响",
+     "en": "Second hoax bomb threat wave in a week hits European flights",
+     "body": "英国政府称这是「恶意虚假威胁」，至少21个欧洲航班受影响。BBC称目前没有确凿证据把威胁与俄罗斯、伊朗或其代理组织联系起来。俄罗斯问题专家巴里奥（Jan Balliauw）在VRT节目中称，莫斯科在欧洲制造混乱，欧洲应更强硬。",
+     "body_en": "The UK government called it a 'malicious hoax threat', with at least 21 European flights affected. The BBC says there is no hard evidence yet linking the threats to Russia, Iran or proxy groups. On VRT, Russia expert Jan Balliauw argued Moscow is sowing chaos and Europe should respond harder.",
+     "ctx": "欧洲近年面临破坏、网络攻击和无人机侵扰等「混合威胁」，常被怀疑与俄罗斯有关，但归因往往困难。",
+     "ctx_en": "Europe has faced sabotage, cyberattacks and drone incursions often suspected to be Russian, though attribution is usually hard.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "hoax threats",
+      "aviation",
+      "hybrid threats"
+     ],
+     "topics": [
+      "安全与冲突",
+      "比利时本地生活"
+     ],
+     "thread": "欧洲航班炸弹威胁",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "英国政府"
+      },
+      {
+       "type": "国家",
+       "name": "俄罗斯"
+      },
+      {
+       "type": "人物",
+       "name": "JanBalliauw"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/cmpqg08nz3pqo?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "VRT NWS",
+       "u": "https://vrtnws.be/p.jGklRZ7OY"
+      }
+     ]
+    },
+    {
+     "zh": "奥列什基六天停火疏散平民，梅拉尼娅称发挥作用",
+     "en": "Oleshky pause lets civilians out; Melania Trump credited",
+     "body": "俄乌在美国斡旋下就奥列什基（Oleshky）达成六天停火，数百名平民撤离。美国第一夫人梅拉尼娅接待俄乌官员并呼吁持久停火，各方都肯定她的作用，但细节未说明。特朗普称乌克兰战争已接近解决，可能涉及「整个欧洲」，他此前也多次有类似说法。",
+     "body_en": "Russia and Ukraine agreed a six-day US-brokered pause at Oleshky, and hundreds of civilians were evacuated. Melania Trump hosted Russian and Ukrainian officials and urged a lasting truce, with all sides crediting her role, though details are unspecified. Trump said the war is close to settled and may involve 'all of Europe', as he has said before.",
+     "ctx": "这是少见的俄乌直接协议，一些观察人士希望更多人道行动随后出现，但全面和平仍无迹象。",
+     "ctx_en": "It is a rare direct Russia-Ukraine agreement. Some observers hope more humanitarian steps follow, but no comprehensive peace is in sight.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Oleshky",
+      "ceasefire",
+      "Trump"
+     ],
+     "topics": [
+      "安全与冲突"
+     ],
+     "thread": "乌克兰和谈",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "梅拉尼娅·特朗普"
+      },
+      {
+       "type": "人物",
+       "name": "特朗普"
+      },
+      {
+       "type": "国家",
+       "name": "乌克兰"
+      },
+      {
+       "type": "国家",
+       "name": "俄罗斯"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/c9p8g085mz07o?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/trump-raises-prospect-of-big-beautiful-russia-ukraine-deal/a-79871394?maca=en-rss-en-all-1573-rdf"
+      }
+     ]
+    },
+    {
+     "zh": "澳门首宗国安案：前议员区锦新被判12年半",
+     "en": "Macau's first national security trial: ex-lawmaker Au Kam San jailed 12.5 years",
+     "body": "澳门亲民主派前议员区锦新因「颠覆国家政权」罪名成立，被判12年6个月监禁。这是澳门首宗国家安全案审判。",
+     "body_en": "Pro-democracy former lawmaker Au Kam San was found guilty of 'subversion against the political power of the State' and sentenced to 12 years and six months. It is Macau's first national security trial.",
+     "ctx": "澳门2009年自行立法实施国家安全法，2023年修订扩大了相关罪名范围。",
+     "ctx_en": "Macau passed its own national security law in 2009 and amended it in 2023 to widen the offences.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Macau",
+      "national security",
+      "Au Kam San"
+     ],
+     "topics": [
+      "法治与监管",
+      "党政与人事"
+     ],
+     "thread": "澳门国安案",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "区锦新"
+      },
+      {
+       "type": "机构",
+       "name": "澳门"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/cmdx33v9vvr2o?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/ex-lawmaker-jailed-in-macau-s-first-national-security-trial/a-79871673?maca=en-rss-en-all-1573-rdf"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "us",
+   "name": "美国",
+   "nameEn": "United States",
+   "en": "UNITED STATES",
+   "tz": "America/New_York",
+   "tzLabel": "华盛顿",
+   "tzLabelEn": "Washington",
+   "items": [
+    {
+     "zh": "中期选举蓝潮：民主党掌控国会，年轻选民成关键",
+     "en": "Midterm blue wave: Democrats take Congress, young voters key",
+     "body": "BBC报道民主党已拿下众议院和参议院，仍有几场关键竞选未定。NPR称30岁以下选民投票给民主党的比例明显高于2024年，北卡罗来纳州有五个共和党席位易手。民主党人阿卜杜勒·埃尔-萨义德赢得密歇根参议员席位。",
+     "body_en": "The BBC reports Democrats have taken both the House and Senate, with some close races still uncalled. NPR says voters under 30 backed Democrats at much higher rates than in 2024, and North Carolina saw five Republican-held seats flip. Democrat Abdul El-Sayed won a Michigan Senate seat.",
+     "ctx": "中期选举被视为对特朗普第二任期的公投，高能源价格和伊朗战争是选民的主要不满之一。",
+     "ctx_en": "The midterms were seen as a verdict on Trump's second term, with high energy prices and the Iran war among voter grievances.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "midterms",
+      "Democrats",
+      "young voters"
+     ],
+     "topics": [
+      "选举与政党"
+     ],
+     "thread": "2026美国中期选举",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "民主党"
+      },
+      {
+       "type": "人物",
+       "name": "特朗普"
+      },
+      {
+       "type": "人物",
+       "name": "阿卜杜勒·埃尔-萨义德"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/c6vg0y2nr445o?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/06/nx-s1-6030627/voters-under-30-helped-drive-tuesdays-blue-wave"
+      }
+     ]
+    },
+    {
+     "zh": "选举失利后共和党互相推责，海格塞斯承压，海湾国家盼伊朗战争降温",
+     "en": "Republicans trade blame as Hegseth is pressed; Gulf states hope Iran war eases",
+     "body": "DW报道，高能源价格使选民转向民主党，主张对伊朗强硬的国防部长海格塞斯面临压力，特朗普暂时仍支持他。被困在美伊战争中数月的海湾国家，则把选举结果看作战争可能结束的信号。伊朗官方称选举不会改变美国对伊政策。",
+     "body_en": "DW reports high energy prices pushed voters to Democrats, putting Iran hawk Defense Secretary Hegseth under fire, though Trump still backs him for now. Gulf states caught in the US-Iran war for months see the result as a sign it may end. Tehran says the midterms won't change US policy.",
+     "ctx": "美伊战争推高了能源价格，也成为美国国内最具争议的议题之一。",
+     "ctx_en": "The US-Iran war has pushed up energy prices and become one of the most divisive issues at home.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Iran war",
+      "Hegseth",
+      "Gulf"
+     ],
+     "topics": [
+      "安全与冲突",
+      "选举与政党"
+     ],
+     "thread": "伊朗战争",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "海格塞斯"
+      },
+      {
+       "type": "国家",
+       "name": "伊朗"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/pete-hegseth-under-fire-as-republicans-trade-blame-for-midterm-debacle/a-79869867?maca=en-rss-en-all-1573-rdf"
+      },
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/americans-voted-against-trump-s-iran-war-gulf-countries-hope-that-means-an-end-to-the-conflict/a-79868398?maca=en-rss-en-all-1573-rdf"
+      }
+     ]
+    },
+    {
+     "zh": "法官叫停特朗普巨型拱门施工14天",
+     "en": "Judge blocks construction of Trump's arch for 14 days",
+     "body": "联邦规划委员会周四深夜批准特朗普的250英尺拱门，政府原希望立即动工。但午夜刚过，法官就发布命令，暂停施工14天。",
+     "body_en": "A federal panel approved Trump's 250-foot arch late Thursday and the administration hoped to start at once. Just after midnight, a judge issued an order blocking work for 14 days.",
+     "ctx": "这类纪念性建筑审批在美国常引发程序和司法争议。",
+     "ctx_en": "Approvals of monumental building projects in the US often draw procedural and legal challenges.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Trump",
+      "arch",
+      "injunction"
+     ],
+     "topics": [
+      "法治与监管",
+      "其他"
+     ],
+     "thread": "特朗普凯旋门",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "特朗普"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/06/nx-s1-6031990/trump-arch-planning-commission-injunction"
+      },
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/cq99zd93ryvko?at_medium=RSS&at_campaign=rss"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cn",
+   "name": "中国",
+   "nameEn": "China",
+   "en": "CHINA · 外交 / 投资 / 政策",
+   "tz": "Asia/Shanghai",
+   "tzLabel": "北京",
+   "tzLabelEn": "Beijing",
+   "items": [
+    {
+     "zh": "欧中休战承压：布鲁塞尔互放威胁，中方再启两项对欧反倾销调查",
+     "en": "EU-China truce strained as threats fly and China opens two new anti-dumping probes",
+     "body": "SCMP报道，欧盟与中国达成避免贸易战的协议数周后，双方仍在分歧、责任和解决办法上各执一词，本周布鲁塞尔活动中互相威胁。BGNES称，中国在协议之后又对欧盟进口产品发起两项反倾销调查。",
+     "body_en": "SCMP reports that weeks after the EU and China struck a deal to avert a trade war, they still disagree on what is wrong, how to fix it and who is to blame, and exchanged threats at events in Brussels this week. BGNES says China has launched two more anti-dumping probes into EU imports despite the deal.",
+     "ctx": "欧盟对中国电动车等产品加征关税、中国对欧盟猪肉、乳制品等展开调查，是近年中欧贸易摩擦的主线。",
+     "ctx_en": "EU duties on Chinese electric vehicles and Chinese probes into EU pork and dairy have been the main thread of recent trade friction.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "EU-China",
+      "anti-dumping",
+      "trade truce"
+     ],
+     "topics": [
+      "中欧关系",
+      "贸易与关税"
+     ],
+     "thread": "中欧经贸博弈",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "欧盟"
+      },
+      {
+       "type": "国家",
+       "name": "中国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "South China Morning Post",
+       "u": "https://www.scmp.com/news/china/article/3373493/eu-china-trade-truce-under-strain-both-sides-brace-potential-trade-war"
+      },
+      {
+       "n": "BGNES",
+       "u": "https://news.google.com/rss/articles/CBMivwFBVV95cUxOdkxRWWlVejlRc0F5NWg0TWlBVWQ1ZGJCZXIzY0MwZGRXUVI2aXNhX1BCRDhEekREaWVNUXB2M0hlLXFhckdZNkdwMWpyeG8wZC0wcElkbENnZmpXb3FaSzhjRzZ6MEFjNFdCNjFBVS1vSC1zZ0p0LXFYbTc2a0VlOW1YZlNJTmNVZXVtdEVtcGRzSUNkRmdkT21ubG9fN1BNUmtueUU5UmJYUFpMYi1zc3ZaQXlrUUV2NWlIYWVMYw?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "外交部谈中美经贸：「相向而行」，农产品采购与降税先后问题",
+     "en": "Foreign ministry on US-China trade: 'meet each other halfway', and the tariff and farm purchase sequence",
+     "body": "外交部回应称，中美要相向而行，坚持互利共赢，推动经贸关系持续稳定向好。针对「美国先减关税、中国再履行农产品采购承诺」的说法，外交部也作了回应。SCMP评论认为，美中停战安排很可能在深圳APEC峰会上延期。",
+     "body_en": "The foreign ministry said China and the US should meet each other halfway, stick to mutual benefit and keep trade ties stable. It also responded to claims that the US must cut tariffs before China honours farm purchase pledges. An SCMP opinion piece expects the US-China truce to be extended at the Shenzhen APEC summit.",
+     "ctx": "去年十月的韩国会晤上，两国同意暂停部分最严厉的相互限制措施，如美方对中国造船的港口费和中方的出口管制，该安排需要延续。",
+     "ctx_en": "At last October's meeting in South Korea, the two leaders agreed to suspend some of the harshest measures, including US port fees on Chinese-built ships and Chinese export controls, and that truce needs extending.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "US-China",
+      "tariffs",
+      "APEC"
+     ],
+     "topics": [
+      "中国外交",
+      "贸易与关税"
+     ],
+     "thread": "中美科技博弈",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "外交部"
+      },
+      {
+       "type": "国家",
+       "name": "中国"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "中国新闻网",
+       "u": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE53czNQeko1TXljeC1yM3VIZGo1U1p5b3dfeG9wZDk4NEVSc29hRkNSam9yMU9DWER6bjNyRkFJOWFoU0VIZmRHRHFQbkwtSnBFZnpmUEY0VW9QVURJcTNOUGhZTm1LSG14?oc=5"
+      },
+      {
+       "n": "South China Morning Post",
+       "u": "https://www.scmp.com/opinion/china-opinion/article/3373140/chances-are-us-china-truce-will-be-extended-shenzhen-apec-summit"
+      }
+     ]
+    },
+    {
+     "zh": "中美科技战新战场：认证电子产品的检测实验室",
+     "en": "US-China tech contest moves to product-testing labs",
+     "body": "SCMP评论称，中美科技竞争的最新前线不是芯片或AI，而是决定电子产品能否进入美国市场的认证实验室。10月29日，美国联邦通信委员会（FCC）就此进行了投票。",
+     "body_en": "An SCMP opinion piece says the latest front in the US-China tech contest is not chips or AI but the labs that certify whether electronics may enter the US market. The FCC held a vote on this on 29 October.",
+     "ctx": "美方近年不断扩大对中国科技企业的限制，从芯片出口管制延伸到设备认证等「守门」环节。",
+     "ctx_en": "Washington has steadily widened curbs on Chinese tech, from chip export controls to gatekeeping steps such as equipment certification.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "FCC",
+      "certification",
+      "tech rivalry"
+     ],
+     "topics": [
+      "科技竞争",
+      "法治与监管"
+     ],
+     "thread": "中美科技博弈",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "美国联邦通信委员会"
+      },
+      {
+       "type": "国家",
+       "name": "中国"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "South China Morning Post",
+       "u": "https://www.scmp.com/opinion/china-opinion/article/3373171/us-china-tech-contest-has-moved-gatekeeping-product-testers"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ai",
+   "name": "AI 治理与伦理",
+   "nameEn": "AI Governance",
+   "en": "AI GOVERNANCE",
+   "tz": "",
+   "tzLabel": "全球",
+   "tzLabelEn": "Global",
+   "items": [
+    {
+     "zh": "AI监管担忧引爆全球科技股抛售，纳指单日跌逾5%",
+     "en": "AI regulation fears trigger global tech sell-off, Nasdaq drops over 5%",
+     "body": "NPR称，投资者担心民主党国会和各州会收紧AI与数据中心监管，科技股蒸发约2万亿美元，纳斯达克跌超5%。日经指数一度暴跌逾7%，跌破6万点，韩国KOSPI触发熔断，欧洲股市也随之下跌。",
+     "body_en": "NPR says investors fear a Democratic Congress and states will crack down on AI and data centres, wiping about $2 trillion off tech shares and sending the Nasdaq down over 5%. Japan's Nikkei briefly fell more than 7% below 60,000, Korea's KOSPI hit a circuit breaker, and European shares followed lower.",
+     "ctx": "此前科技股因AI投资热潮大涨，市场对巨额数据中心投入能否回报本就有疑虑。",
+     "ctx_en": "Tech shares had surged on the AI investment boom, and doubts about returns on huge data centre spending were already present.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "AI regulation",
+      "Nasdaq",
+      "data centres"
+     ],
+     "topics": [
+      "AI治理与监管",
+      "宏观经济"
+     ],
+     "thread": "美国AI监管之争",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "民主党"
+      },
+      {
+       "type": "机构",
+       "name": "纳斯达克"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/05/nx-s1-6031987/stock-markets-ai-midterm-elections"
+      },
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/european-shares-join-a-global-sell-off-as-ai-spending-fears-rattle-wall-street-and-asian-markets/a-79871504?maca=en-rss-en-all-1573-rdf"
+      }
+     ]
+    },
+    {
+     "zh": "民主党赢得参议院但不足60票，坎特威尔推动联邦模型测试",
+     "en": "Democrats win Senate but lack 60 votes; Cantwell pushes federal model testing",
+     "body": "Tech Times报道，民主党掌控参议院，但缺少通过AI监管立法所需的60票。参议员坎特威尔（Cantwell）主张建立联邦层面的AI模型测试制度。",
+     "body_en": "Tech Times reports Democrats hold the Senate but lack the 60 votes needed to pass AI regulation. Senator Cantwell is pushing for federal-level testing of AI models.",
+     "ctx": "联邦层面的AI立法一直难产，各州各自立法，也与特朗普政府主张的放松监管形成拉锯。",
+     "ctx_en": "Federal AI legislation has stalled, states have legislated on their own, and this clashes with the Trump administration's deregulatory stance.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Senate",
+      "filibuster",
+      "model testing"
+     ],
+     "topics": [
+      "AI治理与监管",
+      "选举与政党"
+     ],
+     "thread": "美国AI监管之争",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "坎特威尔"
+      },
+      {
+       "type": "机构",
+       "name": "民主党"
+      },
+      {
+       "type": "机构",
+       "name": "美国参议院"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Tech Times",
+       "u": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxPa1huOTFUR3hfR212RzUtTmVXNzZHcllJa2F2T3VVTlh2cmtTZmo5STBhLTFqc3kxTkhrT0xyNFlwRlZ1Q2poWkxuX2Q1ZWZ5TUtSbHpwQ19NRU9TSXE5WVpuQUtfWHRNenJ4UFFBc3lic2NBUENiMjFIaEY1ekdFcmNXZl9VaVlLLTZEM2ZxUnlDLUlweGh5OG5ScmFKdkVqVE1aNExmbV83OW5wQ293MWRkenc5NkdGYmZZU2FuWlltajg0dVBwemJCdDZqZFZ1WERWOGkwU0M?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "报道称美国地方44项数据中心暂停提案中43项获通过",
+     "en": "Reportedly 43 of 44 local data centre moratorium proposals passed in US",
+     "body": "cnBeta报道称，美国选民在44项数据中心暂停提案中通过了43项。如果属实，这显示公众对数据中心扩张的不满已转化为具体的地方政策。",
+     "body_en": "cnBeta reports US voters passed 43 of 44 data centre moratorium proposals. If accurate, it shows public unease about data centre expansion turning into concrete local policy.",
+     "ctx": "数据中心的电力和用水消耗在美国多地引发争议，也与能源价格上涨相连。",
+     "ctx_en": "Data centres' power and water use has sparked disputes across the US and ties into rising energy prices.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "data centres",
+      "moratorium",
+      "local politics"
+     ],
+     "topics": [
+      "AI伦理与社会影响",
+      "气候与能源"
+     ],
+     "thread": "美国AI监管之争",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "cnBeta",
+       "u": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE5GQ0JSUnFwQTVVd1hPRW9pbU8zaDdpLXpYMUltSUNCU3gxSUlkV3Jqbm5xQ045WktqSXk0aWJyeXYwR0xkTHJxY0V1UUt0RXdiVGJOUV9ONjFCSGlBd3pDbQ?oc=5"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "podcast": {
+  "zh": [
+   {
+    "s": "A",
+    "t": "这里是Dawn晨讯，今天是2026年11月6日，星期五。美国中期选举之后，民主党拿下了国会。市场担心，对人工智能和数据中心的监管可能因此收紧。这一担忧引发了全球科技股大抛售。美国纳斯达克指数单日下跌超过百分之五，科技股市值约蒸发两万亿美元。"
+   },
+   {
+    "s": "A",
+    "t": "日本日经指数一度暴跌超过百分之七，跌破六万点。韩国股指触发熔断，欧洲股市也随之走低。"
+   },
+   {
+    "s": "B",
+    "t": "科技股此前因人工智能投资热潮大涨，市场本就怀疑数据中心的巨额投入能否获得回报。"
+   },
+   {
+    "s": "A",
+    "t": "欧盟与中国达成协议数周后，双方在布鲁塞尔互相放狠话。双方仍在问题出在哪里、责任在谁、如何解决上各执一词。分歧之一是欧盟对中国电动车加征关税，以及中国对欧盟猪肉、乳制品展开的调查。与此同时，中方又对欧盟进口产品发起两项反倾销调查。"
+   },
+   {
+    "s": "A",
+    "t": "俄乌在互相空袭的同时，于布鲁塞尔恢复了重建与安全会谈。意大利要求欧盟在任何和平谈判中只用一个声音说话。另外，俄乌在美国斡旋下就奥列什基达成六天停火，数百名平民得以撤离。美国第一夫人梅拉尼娅接待了双方官员，呼吁持久停火，各方都肯定她的作用。特朗普称乌克兰战争已接近解决，可能涉及整个欧洲，不过他此前也多次这样说。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是比利时。根特的维道卡伊岸路改造历时十个月后完工。路段位于Nieuwevaart与铁路之间，新增舒适的自行车道、安全的过街点，以及通往根特方向的公交专用道。同时，Farys铺设了雨污分流的排水系统。接下来是德国与欧洲。德国总理默茨表示，欧洲必须储备关键原材料。"
+   },
+   {
+    "s": "A",
+    "t": "这一表态出现之际，欧洲对稀土等供应链的依赖正受到越来越多的关注。"
+   },
+   {
+    "s": "B",
+    "t": "中国对稀土等关键材料实施出口管制，促使欧盟讨论战略储备和多元化来源。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是国际新闻。英国政府称，欧洲一周内第二次出现虚假炸弹威胁，至少二十一个航班受到影响。英国广播公司报道，目前没有确凿证据把这些威胁与俄罗斯、伊朗或其代理组织联系起来。比利时的俄罗斯问题专家巴里奥认为，莫斯科正在欧洲制造混乱。他主张欧洲应当做出更强硬的回应。"
+   },
+   {
+    "s": "B",
+    "t": "欧洲近年遭遇破坏、网络攻击和无人机侵扰，常被怀疑与俄罗斯有关，但归因通常很难。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是美国。选举失利后，共和党内部互相推责，主张对伊朗强硬的国防部长海格塞斯面临压力。德国之声报道，高能源价格促使选民转向民主党。特朗普目前仍然支持海格塞斯。被困在美伊战争中数月的海湾国家，把选举结果看作战争可能结束的信号。伊朗官方则称，选举不会改变美国对伊朗的政策。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是中国。外交部回应中美经贸问题时表示，两国应相向而行，坚持互利共赢。外交部还回应了一种说法：美国应先减关税，中国才履行农产品采购承诺。南华早报的一篇评论预计，中美停战安排很可能在深圳亚太经合组织峰会上延长。"
+   },
+   {
+    "s": "B",
+    "t": "去年十月，两国领导人在韩国会晤，同意暂停部分最严厉的相互限制措施，这一安排需要延续。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是人工智能治理。科技媒体Tech Times报道，民主党掌控参议院，但缺少通过人工智能监管立法所需的六十票。参议员坎特威尔主张在联邦层面建立人工智能模型测试制度。据科技网站cnBeta报道，美国选民通过了四十四项地方数据中心暂停提案中的四十三项。"
+   },
+   {
+    "s": "B",
+    "t": "联邦层面的人工智能立法长期难产，各州各自立法，与特朗普政府主张的放松监管形成拉锯。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是节日。11月11日是一战停战纪念日，这一天纪念1918年的第一次世界大战停战。比利时和法国举行纪念仪式，人们在战争纪念碑前献花、默哀。伊普尔的纪念活动尤其有名，人们常佩戴虞美人。比利时和法国这天放假，多数商店关门，鲁汶也可能举行纪念仪式。同一天是美国退伍军人节，各地有游行和纪念活动，许多政府机关和学校放假。"
+   },
+   {
+    "s": "A",
+    "t": "这天也是圣马丁节。德国和比利时的孩子们会提着灯笼游行。德国莱茵地区则在11月11日11点11分宣布狂欢季开始。"
+   },
+   {
+    "s": "B",
+    "t": "圣马丁节不是假日，但你可能会看到灯笼游行和应季糕点。"
+   },
+   {
+    "s": "A",
+    "t": "这里是Dawn晨讯，我们明天同一时间再见。"
+   }
+  ],
+  "en": [
+   {
+    "s": "A",
+    "t": "This is Dawn Daily Wire, Friday, 6 November 2026. After the US midterms gave Democrats control of Congress, investors fear tighter rules on AI and data centres. That fear has triggered a global tech stock rout. The Nasdaq fell more than five percent in a single day, wiping about two trillion dollars off tech shares, according to National Public Radio."
+   },
+   {
+    "s": "A",
+    "t": "Japan's Nikkei briefly dropped more than seven percent, below 60,000, and Korea's KOSPI hit a circuit breaker. European shares followed lower."
+   },
+   {
+    "s": "B",
+    "t": "Tech shares had already surged on the AI investment boom, and doubts about returns on huge data centre spending were there before this sell-off."
+   },
+   {
+    "s": "A",
+    "t": "Weeks after the EU and China struck a deal to avert a trade war, both sides traded threats in Brussels this week. They still disagree on what went wrong, how to fix it, and who is to blame. China has also opened two new anti-dumping probes into EU goods, despite the deal. The dispute also covers EU duties on Chinese electric vehicles and Chinese probes into EU pork and dairy."
+   },
+   {
+    "s": "A",
+    "t": "Russia and Ukraine kept up airstrikes as reconstruction and security talks resumed in Brussels. Italy wants the EU to speak with one voice in any peace talks. Separately, the United States brokered a six-day pause at Oleshky, and hundreds of civilians were evacuated. Melania Trump hosted officials from both sides and urged a lasting truce, and all sides credit her role."
+   },
+   {
+    "s": "A",
+    "t": "Trump said the war is close to settled and may involve all of Europe, as he has said before. Now to Belgium. The redesign of the Wiedauwkaai in Ghent is finished, ten months after work began. The stretch between the Nieuwevaart and the railway now has comfortable cycle paths, safe crossings and a separate bus lane towards Ghent. Farys also laid a separated sewer system."
+   },
+   {
+    "s": "A",
+    "t": "Now to Germany and Europe. German Chancellor Merz said Europe must stockpile critical raw materials, according to Reuters. The remark comes as Europe's dependence on supply chains for rare earths is under scrutiny."
+   },
+   {
+    "s": "B",
+    "t": "Chinese export controls on rare earths and other critical materials have pushed the EU to discuss strategic stockpiles and more diverse sources."
+   },
+   {
+    "s": "A",
+    "t": "Now to the wider world. The UK government calls the threats a malicious hoax, and at least twenty-one flights across Europe were affected. It is the second wave of such threats in a week. The BBC reports there is no hard evidence yet linking the threats to Russia, Iran or proxy groups."
+   },
+   {
+    "s": "A",
+    "t": "Russia expert Jan Balliauw argued on Flemish public broadcaster VRT that Moscow is sowing chaos in Europe, and that Europe should respond harder."
+   },
+   {
+    "s": "B",
+    "t": "Europe has faced sabotage, cyberattacks and drone incursions often suspected to be Russian, but attribution is usually difficult."
+   },
+   {
+    "s": "A",
+    "t": "Now to the United States. After the midterm losses, Republicans are trading blame, and Defense Secretary Hegseth, an Iran hawk, is under pressure. Deutsche Welle reports high energy prices pushed voters toward Democrats, and Trump still backs Hegseth for now."
+   },
+   {
+    "s": "A",
+    "t": "Gulf states caught in the US-Iran war for months see the result as a possible sign the war may end. Tehran says the midterms will not change US policy towards Iran. Now to China. The foreign ministry said Beijing and Washington should meet each other halfway, stick to mutual benefit and keep trade ties stable. It also responded to the claim that the US must cut tariffs before China honours its farm purchase pledges."
+   },
+   {
+    "s": "A",
+    "t": "An opinion piece in the South China Morning Post expects the US-China truce to be extended at the Shenzhen APEC summit."
+   },
+   {
+    "s": "B",
+    "t": "At last October's meeting in South Korea, both leaders agreed to suspend some of the harshest measures, and that truce needs extending."
+   },
+   {
+    "s": "A",
+    "t": "Now to AI governance. Democrats hold the Senate but lack the 60 votes needed to pass AI regulation, Tech Times reports. Senator Cantwell is pushing for federal-level testing of AI models. Separately, cnBeta reports that voters passed 43 of 44 local proposals to pause data centres."
+   },
+   {
+    "s": "B",
+    "t": "Federal AI legislation has stalled, states are legislating on their own, and this clashes with the Trump administration's push for less regulation."
+   },
+   {
+    "s": "A",
+    "t": "Now to holidays. Armistice Day on 11 November marks the end of fighting in the First World War in 1918. In Belgium and France, people hold ceremonies, lay wreaths and observe a silence at war memorials. Ypres is especially known for its commemorations, and poppies are a common symbol. Belgium and France both have a public holiday this Wednesday, and most shops will be closed. Leuven may also hold ceremonies."
+   },
+   {
+    "s": "A",
+    "t": "Veterans Day in the US falls the same day, with parades and ceremonies, and many government offices and schools closed. St Martin's Day also falls on 11 November. Children in Germany and Belgium join lantern processions. The German Rhineland opens its carnival season at 11:11 that morning."
+   },
+   {
+    "s": "B",
+    "t": "St Martin's Day is not a day off, but you may see lantern parades and seasonal pastries."
+   },
+   {
+    "s": "A",
+    "t": "This is Dawn Daily Wire, see you tomorrow at the same time."
+   }
+  ]
+ },
+ "culture": [
+  {
+   "key": "2026-11-11:Armistice Day",
+   "date": "2026-11-11",
+   "en": "Armistice Day",
+   "zh": "一战停战纪念日",
+   "countries": [
+    "BE",
+    "FR"
+   ],
+   "public": true,
+   "intro": "休战日纪念1918年11月11日第一次世界大战停战。比利时和法国在这天举行纪念仪式，在战争纪念碑前献花、默哀。比利时的伊普尔等地的纪念活动尤其知名，人们常佩戴虞美人。",
+   "intro_en": "Armistice Day marks the end of fighting in the First World War on 11 November 1918. In Belgium and France people hold remembrance ceremonies, lay wreaths and observe silence at war memorials. Ypres in Belgium is especially known for its commemorations, and poppies are a common symbol.",
+   "tips": "比利时和法国这天是公共假日，多数商店关门；鲁汶也可能有纪念仪式。",
+   "tips_en": "It is a public holiday in Belgium and France and most shops are closed; Leuven may also hold ceremonies.",
+   "countries_zh": [
+    "比利时",
+    "法国"
+   ],
+   "countries_en": [
+    "Belgium",
+    "France"
+   ]
+  },
+  {
+   "key": "2026-11-11:Veterans Day",
+   "date": "2026-11-11",
+   "en": "Veterans Day",
+   "zh": "退伍军人节",
+   "countries": [
+    "US"
+   ],
+   "public": true,
+   "intro": "美国退伍军人节源于一战休战纪念日，如今用于感谢所有服役军人。各地举行游行和纪念仪式，政府机关和学校多数放假。",
+   "intro_en": "Veterans Day in the US grew out of Armistice Day and now honours all who have served in the armed forces. Towns hold parades and ceremonies, and many government offices and schools close.",
+   "tips": "如果有美国朋友，可以简单说一句「Thank you for your service」。",
+   "tips_en": "If you have American friends, a simple 'thank you for your service' is a common gesture.",
+   "countries_zh": [
+    "美国"
+   ],
+   "countries_en": [
+    "US"
+   ]
+  },
+  {
+   "key": "2026-11-11:St Martin's Day and start of Carnival season",
+   "date": "2026-11-11",
+   "en": "St Martin's Day and start of Carnival season",
+   "zh": "圣马丁节与狂欢节季开幕",
+   "countries": [
+    "DE",
+    "BE"
+   ],
+   "public": false,
+   "intro": "圣马丁节纪念4世纪的圣徒图尔的马丁，传说他把斗篷分给乞丐。德国和比利时的孩子们会提着灯笼游行，吃鹅肉或甜点。德国的莱茵地区在11月11日11点11分宣布狂欢季开始。",
+   "intro_en": "St Martin's Day honours the 4th-century saint Martin of Tours, who by legend shared his cloak with a beggar. Children in Germany and Belgium join lantern processions, and goose or sweet treats are common. In the German Rhineland the carnival season is declared open at 11:11 on 11 November.",
+   "tips": "不是假日，但可能看到孩子们的灯笼游行和应季糕点。在比利时，同日恰逢休战日假期。",
+   "tips_en": "It is not a day off, but you may see lantern parades and seasonal pastries. In Belgium it coincides with the Armistice Day holiday.",
+   "countries_zh": [
+    "德国",
+    "比利时"
+   ],
+   "countries_en": [
+    "Germany",
+    "Belgium"
+   ]
+  },
+  {
+   "key": "2026-11-26:Thanksgiving Day",
+   "date": "2026-11-26",
+   "en": "Thanksgiving Day",
+   "zh": "感恩节",
+   "countries": [
+    "US"
+   ],
+   "public": true,
+   "countries_zh": [
+    "美国"
+   ],
+   "countries_en": [
+    "US"
+   ]
+  }
+ ],
+ "greeting": "brief-2026-11-06-greeting-zh.mp3",
+ "greeting_en": "brief-2026-11-06-greeting-en.mp3",
+ "footer": "本期由 AI 根据各家新闻源整理,摘要为转述,细节以原文为准。",
+ "footer_en": "Compiled with AI from public news feeds. Summaries are paraphrased; check the original articles for detail.",
+ "audio": {
+  "zh": "brief-2026-11-06-zh.mp3",
+  "en": "brief-2026-11-06-en.mp3"
+ }
+}</script>
+<!-- BRIEF-DATA:END -->
+
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('brief-data').textContent);
+  var $ = function(id){return document.getElementById(id)};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function rich(s){return esc(s).replace(/&lt;b&gt;/g,'<b>').replace(/&lt;\/b&gt;/g,'</b>')}
+  var UI = {
+    zh:{top:'今天最该知道的三件事',ag:'接下来要盯的日程',today:' 今天',ctx:'前情提要 · BACKGROUND',src:'来源',deskPlay:'▶ 只听这一版',
+        play:'▶ 朗读全部',pause:'❚❚ 暂停',resume:'▶ 继续',stop:'停止',rate:'语速',idle:'点击朗读,用电脑自带的语音播报全部内容',
+        reading:'正在朗读',stopped:'已停止。点击朗读重新开始',edition:'每日 07:00 布鲁塞尔时间更新',at:'出刊时 ',
+        foot:'本期由 AI 根据各家新闻源整理,摘要为转述,细节以原文为准。朗读使用你设备自带的语音;用 Edge 打开时中英文语音最自然。'},
+    en:{top:'Three things to know today',ag:'Coming up',today:' today',ctx:'BACKGROUND · 前情提要',src:'Sources',deskPlay:'▶ Play this desk',
+        play:'▶ Read all',pause:'❚❚ Pause',resume:'▶ Resume',stop:'Stop',rate:'Speed',idle:'Press play to hear the whole brief with your device voices',
+        reading:'Now reading',stopped:'Stopped. Press play to start again',edition:'Updated daily at 07:00 Brussels time',at:'At press time ',
+        foot:'Compiled with AI from public news feeds. Summaries are paraphrased; check the original articles for detail. Read-aloud uses your device voices; Edge has the most natural ones.'}
+  };
+  var mode='both';
+  try{var m=localStorage.getItem('brief-lang'); if(m==='zh'||m==='en'||m==='both') mode=m;}catch(e){}
+  var ed = new Date(D.editionTime);
+  function hm(tz){try{return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:tz}).format(ed)}catch(e){return '--:--'}}
+
+  function cultureHtml(L, showZh, showEn){
+    var C=D.culture||[]; if(!C.length) return '';
+    var en=mode==='en', t0=new Date(D.edition+'T12:00:00');
+    var wdz=['周日','周一','周二','周三','周四','周五','周六'], wde=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    function md(iso){return iso.slice(5)}
+    var h='<section class="desk" id="culture"><div class="desk-head"><h2>'+(en?'Holidays':'节日与假期')+'<small>HOLIDAYS · '+(en?'NEXT 3 WEEKS':'未来三周')+'</small></h2>'+
+      ''+'</div><div class="cult-list">';
+    C.forEach(function(x,i){
+      var d=new Date(x.date+'T12:00:00'), days=Math.round((d-t0)/864e5);
+      var rel = days===0?(en?'today':'今天'):days===1?(en?'tomorrow':'明天'):(en?'in '+days+' days':days+' 天后');
+      var when='<div class="when">'+md(x.date)+(x.end?'~'+md(x.end):'')+'<small>'+(en?wde[d.getDay()]:wdz[d.getDay()])+' · <span class="'+(days<=2?'soon':'')+'">'+rel+'</span></small></div>';
+      var nmMain = en? x.en : x.zh, nmAlt = en? x.zh : x.en;
+      var ccs=(en?x.countries_en:x.countries_zh)||x.countries||[];
+      var body='';
+      if(showZh&&x.intro) body+='<p>'+esc(x.intro)+'</p>';
+      if(showEn&&x.intro_en) body+='<p lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(x.intro_en)+'</p>';
+      var tip='';
+      if(showZh&&x.tips) tip+='<div>'+esc(x.tips)+'</div>';
+      if(showEn&&x.tips_en) tip+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(x.tips_en)+'</div>';
+      h+='<article class="hol" id="h-'+i+'">'+when+'<div class="what"><div class="name">'+esc(nmMain)+(nmAlt&&nmAlt!==nmMain?'<span class="alt">'+esc(nmAlt)+'</span>':'')+'</div>'+
+        '<div class="meta">'+(x.public?'<span class="off">'+(en?'Public holiday':'法定假日')+'</span>':'')+ccs.map(function(c){return '<span class="cc">'+esc(c)+'</span>'}).join('')+'</div>'+
+        body+(tip?'<div class="tip"><b>'+(en?'Tip':'实用提示')+'</b> '+tip+'</div>':'')+'</div></article>';
+    });
+    return h+'</div></section>';
+  }
+
+  function render(){
+    var L = UI[mode==='en'?'en':'zh'], showZh = mode!=='en', showEn = mode!=='zh';
+    document.documentElement.lang = mode==='en'?'en':'zh-CN';
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed', b.dataset.lang===mode)});
+    var dt=new Date(D.edition+'T12:00:00');
+    var wk = mode==='en' ? dt.toLocaleDateString('en-GB',{weekday:'long'}) : '星期'+['日','一','二','三','四','五','六'][dt.getDay()];
+    $('dateline').textContent = D.edition.replace(/-/g,' · ')+'  '+wk+'  ·  '+L.edition;
+    var zones=[['布鲁塞尔','Brussels','Europe/Brussels'],['伦敦','London','Europe/London'],['华盛顿','Washington','America/New_York'],['北京','Beijing','Asia/Shanghai']];
+    $('clocks').innerHTML = L.at + zones.map(function(z){return (mode==='en'?z[1]:z[0])+' <b>'+hm(z[2])+'</b>'}).join('  ');
+    $('top-h').textContent=L.top; $('ag-h').textContent=L.ag;
+    $('top').innerHTML = D.top.map(function(t,i){
+      var en=(D.top_en||[])[i]||'';
+      return '<li><div>'+(showZh?'<span>'+esc(t)+'</span>':'')+(showEn&&en?'<span class="en-line'+(showZh?' sub':'')+'" lang="en">'+esc(en)+'</span>':'')+'</div></li>'}).join('');
+    var todayMD=D.edition.slice(5);
+    $('agenda').innerHTML = D.agenda.map(function(a){
+      var txt = mode==='en'?(a.en||a.t):(mode==='zh'?a.t:a.t+(a.en?'<span class="en-line sub" lang="en">'+esc(a.en)+'</span>':''));
+      if(mode!=='both') txt=esc(txt); else txt=esc(a.t)+(a.en?'<span class="en-line sub" lang="en">'+esc(a.en)+'</span>':'');
+      return '<tr'+(a.d===todayMD?' class="today"':'')+'><td class="d" data-today="'+L.today+'">'+esc(a.d)+'</td><td>'+txt+'</td></tr>'}).join('');
+    var listen = mode==='en' ? 'Listen to ' : '收听';
+    $('toc').innerHTML = '<span class="chip"><a href="#highlights">'+(mode==='en'?'Top stories':'要点')+'</a></span>' +
+      D.desks.map(function(d,di){
+        if(!d.items.length) return '';
+        var nm = esc(mode==='en'?(d.nameEn||d.name):d.name);
+        return '<span class="chip" data-chip="'+di+'"><a href="#'+d.id+'">'+nm+'<small>'+d.items.length+'</small></a>'+
+          '</span>'}).join('');
+    var C=D.culture||[];
+    if(C.length){var cn=mode==='en'?'Holidays':'节日';
+      $('toc').innerHTML += '<span class="chip" data-chip="culture"><a href="#culture">'+cn+'<small>'+C.length+'</small></a>'+
+        '</span>';}
+    var html='';
+    D.desks.forEach(function(d,di){
+      var nm = mode==='en'?(d.nameEn||d.name):d.name, tzl = mode==='en'?(d.tzLabelEn||d.tzLabel):d.tzLabel;
+      html += '<section class="desk" id="'+d.id+'"><div class="desk-head"><h2>'+esc(nm)+'<small>'+esc(d.en)+'</small></h2>'+
+        '<div class="meta"><span>'+esc(tzl)+(d.tz?' '+hm(d.tz):'')+'</span></div></div>';
+      d.items.forEach(function(it,ii){
+        var h = mode==='en' ? '<h3 lang="en">'+esc(it.en)+'</h3><div class="en">'+esc(it.zh)+'</div>' : '<h3>'+esc(it.zh)+'</h3><div class="en" lang="en">'+esc(it.en)+'</div>';
+        var body='', ctx='', why='';
+        if(showZh){ body+='<p>'+esc(it.body)+'</p>'; ctx+='<div>'+esc(it.ctx)+'</div>'; if(it.why) why+='<div>'+rich(it.why)+'</div>'; }
+        if(showEn&&it.body_en){ body+='<p lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(it.body_en)+'</p>'; ctx+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(it.ctx_en)+'</div>'; if(it.why_en) why+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+rich(it.why_en)+'</div>'; }
+        html += '<article class="item" id="i-'+di+'-'+ii+'">'+h+body+
+          '<div class="ctx"><span class="lab">'+L.ctx+'</span>'+ctx+'</div>'+
+          (why?'<div class="why">'+why+'</div>':'')+
+          '<div class="tags">'+it.tags.map(function(t){return '<span>'+esc(t)+'</span>'}).join('')+'</div>'+
+          '<div class="src">'+L.src+' '+it.sources.map(function(s){return '<a href="'+esc(s.u)+'" target="_blank" rel="noopener">'+esc(s.n)+'</a>'}).join('')+'</div></article>';
+      });
+      html+='</section>';
+    });
+    html += cultureHtml(L, showZh, showEn);
+    $('desks').innerHTML=html;
+    $('foot').textContent = (mode==='en' ? (D.footer_en!=null?D.footer_en:L.foot) : (D.footer!=null?D.footer:L.foot));
+  }
+
+  /* ---------- podcast player ---------- */
+  var A = D.audio || {}, podLang = null;
+  function curPod(){ var l = podLang || (mode==='en' ? 'en' : 'zh'); return A[l] ? l : (A.zh ? 'zh' : (A.en ? 'en' : null)); }
+  function podFile(){ var l = curPod(); return l ? A[l] : null; }
+  document.querySelectorAll('#pod-lang button').forEach(function(b){b.addEventListener('click',function(){ podLang=b.dataset.pl; setPlayer(); })});
+  function setPlayer(){
+    var f=podFile(), el=$('pod');
+    $('pod-lang').hidden = !(A.zh && A.en);
+    document.querySelectorAll('#pod-lang button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.pl===curPod()); });
+    if(!f){ $('player').hidden=true; document.body.style.paddingBottom='24px'; return; }
+    $('player').hidden=false;
+    $('pl-label').textContent = mode==='en' ? "Today's show" : '今日播客';
+    if(el.getAttribute('src')!==f) el.setAttribute('src', f);
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){
+    if(mode===b.dataset.lang) return; mode=b.dataset.lang; podLang=null;
+    try{localStorage.setItem('brief-lang',mode)}catch(e){} render(); setPlayer();
+  })});
+  render(); setPlayer();
+})();
+</script>
+
+</body>
+</html>
