@@ -1,0 +1,1348 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><script>(function(){var I='2026-11-13';function c(){try{fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(v){if(v&&v.date&&v.date>I&&location.search.indexOf('v='+v.date)<0)location.replace(location.pathname+'?v='+v.date)}).catch(function(){})}catch(e){}}c();addEventListener('pageshow',function(e){if(e.persisted)c()});document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')c()});})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dawn 晨讯</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap"></noscript>
+<style>
+/* Layout: a morning wire. Masthead with world clocks, a "today's three" strip, a week agenda, then one column of regional desks; a fixed audio bar reads the whole brief aloud. */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#121a24; --muted:#586474; --rule:#d3dae2;
+  --accent:#2448b8; --accent-soft:#e3e9fb; --onair:#b97a06; --onair-soft:#fbf0d9;
+  --ctx:#f4f6f9;
+  --f-display:"Noto Serif SC","Songti SC","SimSun",serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf1; --muted:#93a1b1; --rule:#273341;
+  --accent:#88a3ff; --accent-soft:#1e2a4a; --onair:#f0b43c; --onair-soft:#3a2d12; --ctx:#121a22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf1; --muted:#93a1b1; --rule:#273341;
+  --accent:#88a3ff; --accent-soft:#1e2a4a; --onair:#f0b43c; --onair-soft:#3a2d12; --ctx:#121a22; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:780px;margin:0 auto;padding-block:28px 24px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* masthead */
+.mast{display:grid;gap:14px;border-bottom:3px solid var(--ink);padding-bottom:16px}
+.mast h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,7vw,52px);line-height:1.05;margin:0;letter-spacing:.02em}
+.mast h1 span{font-family:var(--f-mono);font-weight:600;font-size:.42em;letter-spacing:.12em;color:var(--accent);vertical-align:.55em;margin-left:.4em}
+.dateline{font-family:var(--f-mono);font-size:13px;color:var(--muted);letter-spacing:.04em}
+.clocks{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.clocks b{color:var(--ink);font-weight:600}
+
+/* top three */
+.top{margin-top:18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.top ol{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:t}
+.top li{counter-increment:t;display:grid;grid-template-columns:2.2em 1fr;gap:4px;font-size:17px;line-height:1.6}
+.top li::before{content:counter(t);font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.1;color:var(--accent)}
+
+/* agenda */
+.agenda{margin-top:22px;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:14px 16px}
+.agenda table{width:100%;border-collapse:collapse;font-size:14px}
+.agenda td{padding:5px 0;vertical-align:top;border-top:1px dashed var(--rule)}
+.agenda tr:first-child td{border-top:0}
+.agenda td.d{font-family:var(--f-mono);white-space:nowrap;padding-right:14px;color:var(--accent);font-variant-numeric:tabular-nums;width:1%}
+.agenda .today td.d::after{content:"";color:var(--onair);font-family:var(--f-body);font-weight:700}
+
+/* sections */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--bg);border-bottom:1px solid var(--rule);
+  display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-block:10px;margin-top:0}
+nav.toc::-webkit-scrollbar{display:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:16;background:var(--bg)}
+.chip{flex:0 0 auto;display:inline-flex;align-items:stretch;border:1px solid var(--rule);background:var(--surface);border-radius:999px;overflow:hidden}
+.chip a{font-size:14px;text-decoration:none;color:var(--ink);padding:5px 6px 5px 12px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.chip a small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.chip a:only-child{padding-right:12px}
+.chip a{padding-right:12px}
+.player audio{flex:1 1 260px;min-width:0;width:100%;height:40px}
+.pl-label{font-weight:600;font-size:14px;color:var(--ink);white-space:nowrap}
+.pod-lang{display:inline-flex;border:1px solid var(--ink);border-radius:999px;overflow:hidden;flex:0 0 auto}
+.pod-lang button{font:500 13px var(--f-body);background:transparent;color:var(--ink);border:0;padding:3px 10px;cursor:pointer}
+.pod-lang button+button{border-left:1px solid var(--ink)}
+.pod-lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chip button{border:0;border-left:1px solid var(--rule);background:transparent;color:var(--accent);font-size:12px;padding:0 10px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip button:hover,.chip.on button{background:var(--accent);color:var(--surface)}
+.chip.on{border-color:var(--accent)}
+section.desk,#highlights{scroll-margin-top:72px}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+section.desk{margin-top:38px}
+.desk-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--ink);padding-bottom:6px}
+.desk-head h2{font-family:var(--f-display);font-weight:900;font-size:26px;margin:0;letter-spacing:.03em}
+.desk-head h2 small{font-family:var(--f-mono);font-weight:400;font-size:12.5px;color:var(--muted);letter-spacing:.08em;margin-left:10px}
+.desk-head .meta{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.btn-mini{font:500 13px var(--f-body);border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:999px;padding:2px 10px;cursor:pointer}
+.btn-mini:hover{border-color:var(--accent);color:var(--accent)}
+
+article.item{padding:18px 0 20px;border-bottom:1px solid var(--rule);display:grid;gap:8px;scroll-margin-top:72px;transition:background .2s}
+article.item.reading{background:var(--onair-soft);box-shadow:-10px 0 0 var(--onair-soft),10px 0 0 var(--onair-soft)}
+article.item h3{font-family:var(--f-display);font-weight:600;font-size:20px;line-height:1.45;margin:0;text-wrap:balance}
+article.item .en{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);line-height:1.5}
+article.item p{margin:0;max-width:65ch}
+.ctx{background:var(--ctx);border-left:3px solid var(--accent);padding:10px 14px;font-size:15px;color:var(--ink);max-width:65ch}
+.ctx .lab{display:block;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;color:var(--accent);margin-bottom:2px}
+.why{font-size:15px;color:var(--muted)}
+.why b{color:var(--ink);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-family:var(--f-mono);font-size:12px;background:var(--accent-soft);color:var(--accent);padding:1px 8px;border-radius:3px}
+.src{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.src a{text-decoration:none;border-bottom:1px solid currentColor}
+
+/* holidays */
+.cult-list{display:grid;gap:0}
+.hol{display:grid;grid-template-columns:6.4em 1fr;gap:4px 14px;padding:14px 0;border-bottom:1px solid var(--rule);scroll-margin-top:72px;transition:background .2s}
+.hol.reading{background:var(--onair-soft);box-shadow:-10px 0 0 var(--onair-soft),10px 0 0 var(--onair-soft)}
+.hol .when{font-family:var(--f-mono);font-size:13px;color:var(--accent);line-height:1.35;font-variant-numeric:tabular-nums}
+.hol .when small{display:block;color:var(--muted);font-size:11.5px}
+.hol .when .soon{color:var(--onair);font-weight:600}
+.hol .what{min-width:0;display:grid;gap:6px}
+.hol .name{font-family:var(--f-display);font-weight:600;font-size:17px;line-height:1.4;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.hol .name .alt{font-family:var(--f-mono);font-weight:400;font-size:12px;color:var(--muted)}
+.hol .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.cc{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--rule);color:var(--muted);padding:0 6px;border-radius:3px}
+.off{font-size:12px;font-weight:600;color:var(--onair);background:var(--onair-soft);padding:0 8px;border-radius:3px}
+.hol p{margin:0;max-width:65ch;font-size:15px}
+.hol .tip{font-size:14px;color:var(--muted);max-width:65ch}
+.hol .tip b{color:var(--ink);font-weight:500}
+@media (max-width:480px){.hol{grid-template-columns:1fr}.hol .when small{display:inline;margin-left:6px}}
+footer{margin-top:40px;font-size:13px;color:var(--muted);max-width:65ch}
+
+/* player */
+.player{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--rule);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.player-in{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play{font:700 15px var(--f-body);background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:8px 18px;cursor:pointer;min-width:7.5em}
+.play.on{background:var(--onair);color:#1a1205}
+.stop{font:500 14px var(--f-body);background:transparent;color:var(--ink);border:1px solid var(--rule);border-radius:999px;padding:7px 14px;cursor:pointer}
+.player select{font:14px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:5px 6px}
+.now{flex:1 1 200px;min-width:0;font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now b{color:var(--onair)}
+.mast-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.lang{display:inline-flex;border:1px solid var(--ink);border-radius:999px;overflow:hidden}
+.lang button{font:500 13px var(--f-body);background:transparent;color:var(--ink);border:0;padding:3px 12px;cursor:pointer}
+.lang button+button{border-left:1px solid var(--ink)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.en-line{display:block}
+.sub{color:var(--muted);font-size:.92em}
+.en-p{max-width:65ch;line-height:1.65}
+p.en-p{margin:0}
+.ctx .en-p.sub{margin-top:8px;padding-top:8px;border-top:1px dashed var(--rule)}
+.why .en-p.sub{margin-top:2px}
+.top li .sub{font-size:15px;margin-top:2px}
+.agenda .today td.d::after{content:attr(data-today)}
+.agenda td .sub{font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:480px){.desk-head h2{font-size:22px} article.item h3{font-size:18px}}
+</style>
+
+<style>
+body{margin:0}
+.audio-files{margin-top:22px;display:grid;gap:8px}
+.audio-files .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.audio-files .row span{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;color:var(--muted);min-width:4em}
+.audio-files audio{flex:1 1 240px;max-width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-top"><div class="dateline" id="dateline"></div><div class="lang" role="group" aria-label="Language 语言"><button type="button" data-lang="zh">中文</button><button type="button" data-lang="both">双语</button><button type="button" data-lang="en">EN</button></div></div>
+    <h1>Dawn 晨讯<span>DAILY WIRE</span></h1>
+    <div class="clocks" id="clocks" aria-label="出刊时各地时间"></div>
+  </header>
+  <nav class="toc" id="toc" aria-label="版块导航 Sections"></nav>
+
+  <section class="top" id="highlights" aria-labelledby="top-h">
+    <div class="eyebrow" id="top-h"></div>
+    <ol id="top"></ol>
+  </section>
+
+  <section class="agenda" aria-labelledby="ag-h">
+    <div class="eyebrow" id="ag-h" style="margin-bottom:6px"></div>
+    <table><tbody id="agenda"></tbody></table>
+  </section>
+
+  
+  <main id="desks"></main>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="player" role="region" aria-label="播客 Podcast" id="player" hidden>
+  <div class="player-in">
+    <span class="pl-label" id="pl-label">今日播客</span>
+    <div class="pod-lang" id="pod-lang" role="group" aria-label="播客语言 Podcast language"><button type="button" data-pl="zh">中文</button><button type="button" data-pl="en">EN</button></div>
+    <audio id="pod" controls preload="none"></audio>
+  </div>
+</div>
+
+<!-- BRIEF-DATA:START -->
+<script id="brief-data" type="application/json">{
+ "edition": "2026-11-13",
+ "editionTime": "2026-11-13T07:00:00+01:00",
+ "top": [
+  "美国特使与普京会谈后，欧洲在乌克兰和谈中获得席位的可能性上升，但由谁出席仍有争执。",
+  "英伟达CEO黄仁勋因婚外情丑闻辞职，被传召到国会作证，北京回应称对“中国间谍”说法已多次表明立场。",
+  "习近平称愿与台湾“有识之士”对话，美方确认正讨论特朗普、习近平、普京三方峰会的可能。"
+ ],
+ "top_en": [
+  "A European seat in Ukraine peace talks looks more likely after a US envoy met Putin, but who will fill it is still disputed.",
+  "Nvidia CEO Jensen Huang resigned over an affair scandal and has been summoned by Congress, while Beijing says it has already stated its position on the 'Chinese spy' claims.",
+  "Xi says he is ready to talk with 'people of vision' in Taiwan, and the US confirms a possible Trump-Xi-Putin summit is under discussion."
+ ],
+ "agenda": [
+  {
+   "d": "11-14",
+   "t": "欧洲歌会（Eurovision）首次在亚洲举办，十一国在曼谷参赛",
+   "en": "Eurovision Asia held for the first time, with eleven countries competing in Bangkok"
+  },
+  {
+   "d": "11-15",
+   "t": "布拉格举行大规模抗议，反对削减公共媒体经费",
+   "en": "Major Prague protest against cuts to public media funding"
+  },
+  {
+   "d": "12-19~20",
+   "t": "Alden Biesen城堡上演家庭演出《Winterkasteel》",
+   "en": "Family show 'Winterkasteel' at Alden Biesen castle"
+  }
+ ],
+ "desks": [
+  {
+   "id": "be",
+   "name": "比利时",
+   "nameEn": "Belgium",
+   "en": "BELGIUM",
+   "tz": "Europe/Brussels",
+   "tzLabel": "布鲁塞尔",
+   "tzLabelEn": "Brussels",
+   "items": [
+    {
+     "zh": "布鲁塞尔机场增设八个护照柜台，缓解EES排队",
+     "en": "Brussels Airport adds eight passport desks as EES queues persist",
+     "body": "欧盟入境出境系统（EES）启用后，布鲁塞尔机场的边检排队问题仍未消除。机场将再增加八个护照检查柜台，以加快旅客通关。",
+     "body_en": "Queues at border control in Brussels Airport have not gone away since the EU's Entry/Exit System (EES) came into use. The airport will add eight more passport desks to speed up passenger processing.",
+     "ctx": "EES要求非欧盟旅客在外部边境登记指纹和面部信息，取代手动盖章。新系统带来的额外手续让多个欧洲机场出现排队。",
+     "ctx_en": "EES requires non-EU travellers to register fingerprints and facial images at the external border, replacing manual stamping. The extra steps have caused queues at several European airports.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "EES",
+      "Brussels Airport",
+      "border control"
+     ],
+     "topics": [
+      "移民与边境",
+      "比利时本地生活"
+     ],
+     "thread": "欧盟智能边境系统",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "布鲁塞尔机场"
+      },
+      {
+       "type": "法规",
+       "name": "欧盟入境出境系统"
+      }
+     ],
+     "sources": [
+      {
+       "n": "ETIAS.com",
+       "u": "https://news.google.com/rss/articles/CBMimAFBVV95cUxQWjV1STI4UjJ4WVVra3lSQVA0RzQ3YTNyMlZJWmt0dzVHRnVlWUJnd2hiT3VqSDlGV2RoT0pzc0h0UFBVczgtdHlRY3YzYVhQQnVHdXVhb3Y0WlB3dC1wd29yeUd4VHZjQmRIU1ZDa0hoN3VZNXJfSHhjaEFVNzNtSVJXT0Z6TzB1UWR1QXZHUE9QMDIxMHVLZw?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "欧盟委员会批准比利时20.4亿欧元海上风电支持方案",
+     "en": "Commission approves €2.04 billion support scheme for Belgian offshore wind",
+     "body": "欧盟委员会批准了一项总额20.4亿欧元的支持方案，用于比利时的一座海上风电场。这笔补贴获得了欧盟层面的许可。",
+     "body_en": "The European Commission has approved a €2.04 billion support scheme for a Belgian offshore wind farm, giving the subsidy clearance at EU level.",
+     "ctx": "成员国给企业的补贴通常需要先通过欧盟国家援助规则审查。比利时在北海有海上风电布局，是其能源转型的一部分。",
+     "ctx_en": "Subsidies that member states give to companies generally need clearance under EU state aid rules. Belgium has offshore wind capacity in the North Sea as part of its energy transition.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "offshore wind",
+      "state aid",
+      "Belgium"
+     ],
+     "topics": [
+      "气候与能源",
+      "产业政策与补贴"
+     ],
+     "thread": "欧盟产业补贴",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "欧盟委员会"
+      },
+      {
+       "type": "国家",
+       "name": "比利时"
+      }
+     ],
+     "sources": [
+      {
+       "n": "AzerNews",
+       "u": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE9DRE5EUWRMZ0dvRW9KdmZ1ZXZZaXM0Vm5KdUVhZEQ0aDhUN2RydVdWLUUyaFZGc040RGtHZVlFY2VFdmhfMXZsaWVrb29iV1ZKZGxNeA?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "鲁汶一带傍晚有烧焦味，消防称是木炉烟雾",
+     "en": "Evening smoke smell around Leuven comes from wood stoves, fire brigade says",
+     "body": "鲁汶地区一些街道傍晚出现烧焦气味，居民在社交媒体上反映。消防部门解释说，这是木炉的烟雾，因为最近几天无风而滞留不散。消防提醒居民要妥善维护炉子。",
+     "body_en": "Residents in the Leuven area have reported a burning smell in some streets in the evening. The fire brigade says it is smoke from wood stoves that lingers because the past few days have been windless. It reminds people to maintain their stoves properly.",
+     "ctx": "进入秋冬，比利时不少家庭使用木炉取暖。无风天气容易让烟雾积在低处。",
+     "ctx_en": "Many Belgian households use wood stoves as the weather turns cold, and windless weather lets smoke settle at low levels.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Leuven",
+      "wood stoves",
+      "air quality"
+     ],
+     "topics": [
+      "比利时本地生活"
+     ],
+     "thread": "鲁汶本地生活",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "消防队"
+      }
+     ],
+     "sources": [
+      {
+       "n": "VRT NWS",
+       "u": "https://vrtnws.be/p.3BwRPMOGE"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "de",
+   "name": "德国与欧洲",
+   "nameEn": "Germany & Europe",
+   "en": "GERMANY · DW",
+   "tz": "Europe/Berlin",
+   "tzLabel": "柏林",
+   "tzLabelEn": "Berlin",
+   "items": [
+    {
+     "zh": "欧洲争夺乌克兰和谈席位，默茨提出灵活代表方案",
+     "en": "Europe weighs who should take its seat at Ukraine talks as Merz backs a flexible format",
+     "body": "美国特使与普京会谈后，欧洲在俄乌和谈中获得席位已显得可能，但派谁出席仍不明朗。德国总理默茨说，莫斯科似乎愿意接受欧洲发挥作用，并支持灵活的出席形式。有报道称他提议由五个国家代表欧洲。",
+     "body_en": "After a US envoy met Putin, a European seat at the Russia-Ukraine talks now looks likely, but who will occupy it is unclear. German Chancellor Merz says Moscow seems willing to accept a European role and backs a flexible format. Reports say he proposed five countries to represent Europe.",
+     "ctx": "此前和谈主要在美俄乌之间推进，欧洲担心自己的安全利益被绕开。泽连斯基表示欢迎欧洲参与，因为乌克兰希望最终加入欧盟。",
+     "ctx_en": "Talks had mostly run between the US, Russia and Ukraine, and Europeans feared their security interests would be sidelined. Zelensky welcomes European involvement since Ukraine hopes to join the EU eventually.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Ukraine talks",
+      "Merz",
+      "European seat"
+     ],
+     "topics": [
+      "安全与冲突",
+      "中国外交"
+     ],
+     "thread": "乌克兰和谈",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "默茨"
+      },
+      {
+       "type": "人物",
+       "name": "泽连斯基"
+      },
+      {
+       "type": "人物",
+       "name": "普京"
+      },
+      {
+       "type": "国家",
+       "name": "德国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/eu-leaders-tussle-over-whom-to-send-to-ukraine-russia-peace-talks/a-79935468?maca=en-rss-en-eu-2092-rdf"
+      },
+      {
+       "n": "Kyiv Post",
+       "u": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE5JYmtmQXpoNVFJZTJiXzRQZXplU3doOGVKWUlCUkxKX1NuQzE3bllWR0VjYW1QTThpUEljZGZ3VXdYcGRMSWJmYXF0WQ?oc=5"
+      },
+      {
+       "n": "RBC-Ukraine",
+       "u": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPVGFZbXBRd2VYd1ZDM2NtSXVqODVhbzJhODVNemgxR1R3NTgxZlVBdFZIUXJrYXJkMU5vcUk4UmJReUxMUlRwMS1kWVVqZl9yRmVzY1I0VFZuYi1hY3hQVnM5RW1BWWhGR2tuMjlRSzgwQ1NTNG9VcUFTUlhCeGs0eFN6cnlxbFltYnFfdmVTVmZUaU9EY1gtT05n?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "欧盟《数字公平法》提案引发分歧：太软还是太多",
+     "en": "Digital Fairness Act divides Brussels: too soft or too much?",
+     "body": "欧盟想遏制订阅陷阱、误导性促销手段和让人不停刷屏的设计。关于拟议中的《数字公平法》（Digital Fairness Act），布鲁塞尔内部有人认为力度不够，也有人认为管得太多。",
+     "body_en": "The EU wants to curb subscription traps, misleading sales tactics and features designed to keep people scrolling. Brussels is split over the proposed Digital Fairness Act, with some saying it is too soft and others that it goes too far.",
+     "ctx": "这项法案属于欧盟加强数字消费者保护的一部分，针对的是所谓的“暗黑模式”等设计。它与已有的数字监管框架并行推进。",
+     "ctx_en": "The act is part of the EU's push for stronger digital consumer protection, aimed at design practices often called 'dark patterns'. It runs alongside the existing digital rulebook.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Digital Fairness Act",
+      "consumer protection",
+      "dark patterns"
+     ],
+     "topics": [
+      "法治与监管",
+      "AI治理与监管"
+     ],
+     "thread": "欧盟数字公平法",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "欧盟"
+      },
+      {
+       "type": "法规",
+       "name": "数字公平法"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/can-the-eu-make-it-harder-to-trick-consumers-online/a-79933447?maca=en-rss-en-eu-2092-rdf"
+      },
+      {
+       "n": "EU Perspectives",
+       "u": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQV2pRQWNzYmFZM25sWkFsSFREeDlTLWR3V0YtTGZXZGxJbXFEanliTk9ZblB5bmdKZ0tUc0NPQ2V0VkdHcWlGSnlLZDJXeWk2blU4Z0FTQkpPWVMyWEJabTg4YlUxZFAxQ2JTOWxFekVwQlNFbGFLRFRhTXNSQTk5MnpHMlBnTFlnVzcxa3dkMHNVamxGb2hpN2NManlnQTV0Ym1ZTlNpMVQ1cGZic0taZ0ZxdzNuMmFkRWlEcVZ6UlJ0cGRjcG03OQ?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "荷兰税收方案险过，执政伙伴VVD投反对票",
+     "en": "Dutch tax plan passes narrowly without coalition partner VVD",
+     "body": "荷兰众议院以微弱多数通过税收方案，但执政党VVD投了反对票。VVD反对方案中的新“百万富翁税”，该条款靠左翼反对党支持获得通过。联合政府今后走向因此不确定。",
+     "body_en": "The Dutch lower house passed the tax plan by a narrow majority, but coalition party VVD voted against. It opposes a new 'millionaire tax' in the plan, which passed with support from the left-wing opposition. That leaves the coalition's path forward uncertain.",
+     "ctx": "荷兰政府近期的预算安排一直不稳，联合政府内部在税收和支出上分歧明显。",
+     "ctx_en": "The Dutch government's budget has been shaky recently, with clear splits inside the coalition over taxes and spending.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Netherlands",
+      "tax plan",
+      "VVD"
+     ],
+     "topics": [
+      "选举与政党",
+      "宏观经济"
+     ],
+     "thread": "荷兰预算危机",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "荷兰众议院"
+      },
+      {
+       "type": "机构",
+       "name": "VVD"
+      },
+      {
+       "type": "国家",
+       "name": "荷兰"
+      }
+     ],
+     "sources": [
+      {
+       "n": "VRT NWS",
+       "u": "https://vrtnws.be/p.11poB931l"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "world",
+   "name": "世界",
+   "nameEn": "World",
+   "en": "WORLD · BBC",
+   "tz": "Europe/London",
+   "tzLabel": "伦敦",
+   "tzLabelEn": "London",
+   "items": [
+    {
+     "zh": "芬兰监测到波罗的海俄军舰遇袭，美国特使同时会见俄乌总统",
+     "en": "Finland detects strike on Russian warship as US envoys meet Russian and Ukrainian leaders",
+     "body": "据报道，芬兰监测到波罗的海一艘俄罗斯军舰遭到袭击。这一消息出现在美国特使会见俄罗斯和乌克兰总统之前。泽连斯基欢迎美方把欧洲拉进和谈。",
+     "body_en": "Finland has reportedly detected an attack on a Russian warship in the Baltic. The reports came before US envoys met the Russian and Ukrainian presidents. Zelensky welcomed the US move to bring Europe into the talks.",
+     "ctx": "俄乌战争已持续多年，美国近期推动新一轮和谈。波罗的海是北约与俄罗斯接壤的敏感海域。",
+     "ctx_en": "The war has run for years and the US has recently pushed a new round of talks. The Baltic is a sensitive area where NATO and Russia meet.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Baltic",
+      "Ukraine",
+      "peace talks"
+     ],
+     "topics": [
+      "安全与冲突"
+     ],
+     "thread": "乌克兰和谈",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "芬兰"
+      },
+      {
+       "type": "国家",
+       "name": "俄罗斯"
+      },
+      {
+       "type": "人物",
+       "name": "泽连斯基"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Al Jazeera",
+       "u": "https://www.aljazeera.com/news/2026/11/13/finland-detects-strike-on-russian-warship-as-zelenskyy-meets-us-envoys?traffic_source=rss"
+      },
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/ckn80j9jv3jxo?at_medium=RSS&at_campaign=rss"
+      }
+     ]
+    },
+    {
+     "zh": "以军打击加沙纳赛尔医院，六人死亡",
+     "en": "Israeli strike on Gaza's Nasser hospital kills six",
+     "body": "加沙卫生部称，以色列空袭击中南部最大医院纳赛尔医院，造成六名巴勒斯坦人死亡。目击者说导弹击中了设有外科病房和重症监护室的楼体。",
+     "body_en": "Gaza's health ministry says an Israeli strike on Nasser hospital, the largest in southern Gaza, killed six Palestinians. Witnesses say a missile hit a building housing the surgical wards and intensive care units.",
+     "ctx": "加沙医疗系统长期受战事冲击，医院遇袭反复引发国际关注。",
+     "ctx_en": "Gaza's health system has been battered by the conflict, and attacks on hospitals have repeatedly drawn international attention.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Gaza",
+      "Nasser hospital"
+     ],
+     "topics": [
+      "安全与冲突"
+     ],
+     "thread": "加沙人道危机",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "纳赛尔医院"
+      },
+      {
+       "type": "机构",
+       "name": "加沙卫生部"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/ckzd9p7e4eqeo?at_medium=RSS&at_campaign=rss"
+      }
+     ]
+    },
+    {
+     "zh": "西班牙总罢工因住房与生活成本爆发，巴塞罗那出现冲突",
+     "en": "Spain general strike over housing and living costs sees clashes in Barcelona",
+     "body": "西班牙主要工会发起总罢工，数万人参加，诉求是住房问题和高昂的生活成本。巴塞罗那出现冲突。",
+     "body_en": "Spain's main unions called a general strike over housing and the high cost of living, and tens of thousands took part. Clashes broke out in Barcelona.",
+     "ctx": "西班牙房价和租金近年快速上涨，住房已成为全国性的社会议题。",
+     "ctx_en": "Spanish house prices and rents have risen fast in recent years, making housing a national social issue.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Spain",
+      "general strike",
+      "housing"
+     ],
+     "topics": [
+      "劳工与抗议"
+     ],
+     "thread": "西班牙住房危机",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "西班牙"
+      },
+      {
+       "type": "机构",
+       "name": "西班牙工会"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/cwvg25nypmrvo?at_medium=RSS&at_campaign=rss"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "us",
+   "name": "美国",
+   "nameEn": "United States",
+   "en": "UNITED STATES",
+   "tz": "America/New_York",
+   "tzLabel": "华盛顿",
+   "tzLabelEn": "Washington",
+   "items": [
+    {
+     "zh": "黄仁勋因婚外情丑闻辞去英伟达CEO，被传召国会作证",
+     "en": "Jensen Huang quits as Nvidia CEO over affair, summoned to testify before Congress",
+     "body": "黄仁勋承认婚外情后辞去英伟达CEO职务，美方称对方女子是中国间谍。他已被传召到国会作证。媒体讨论这是否危及美国敏感技术外流，也有人担心重提“中国行动计划”式的疑虑。",
+     "body_en": "Jensen Huang resigned as Nvidia CEO after admitting an extramarital affair with a woman the US says is a Chinese spy. He has been summoned to testify before Congress. Commentators are asking whether sensitive US technology is at risk, and some worry about a revival of China Initiative-style suspicion.",
+     "ctx": "英伟达是全球领先的AI芯片企业，其对华销售一直是中美科技博弈的焦点。中国外交部表示，对“中国间谍”的说法已多次表明立场。",
+     "ctx_en": "Nvidia is the dominant AI chipmaker, and its China sales have been central to US-China tech rivalry. China's foreign ministry says it has stated its position on 'Chinese spy' claims many times.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Nvidia",
+      "Jensen Huang",
+      "espionage",
+      "AI chips"
+     ],
+     "topics": [
+      "科技竞争",
+      "AI治理与监管"
+     ],
+     "thread": "中美科技博弈",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "黄仁勋"
+      },
+      {
+       "type": "机构",
+       "name": "英伟达"
+      },
+      {
+       "type": "机构",
+       "name": "美国国会"
+      },
+      {
+       "type": "国家",
+       "name": "中国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/cmq5vd1wdgz6o?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/12/nx-s1-6039266/jensen-huang-china-honey-trap-nvidia-spies-sex-alice-huang"
+      },
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/science/article/3374151/nvidias-jensen-huang-affair-revives-china-initiative-concerns-silicon-valley"
+      }
+     ]
+    },
+    {
+     "zh": "范霍伦宣布挑战舒默，竞逐参议院民主党领袖",
+     "en": "Van Hollen to challenge Schumer for Senate Democratic leader",
+     "body": "马里兰州进步派参议员范霍伦（Chris Van Hollen）说，中期选举中选民传达了要求“改变现状”的明确信息。他将挑战舒默，争夺参议院多数党领袖一职。",
+     "body_en": "Maryland progressive Sen. Chris Van Hollen says voters sent a clear message in the midterms that they want 'change from the status quo'. He will challenge Chuck Schumer for the post of Senate majority leader.",
+     "ctx": "中期选举后民主党内部围绕领导层与路线的争论升温。阿拉斯加参议院席位等部分结果仍在计票。",
+     "ctx_en": "Debate over leadership and direction is growing inside the Democratic Party after the midterms. Some results, such as the Alaska Senate race, are still being counted.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Van Hollen",
+      "Schumer",
+      "midterms"
+     ],
+     "topics": [
+      "选举与政党"
+     ],
+     "thread": "2026美国中期选举",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "范霍伦"
+      },
+      {
+       "type": "人物",
+       "name": "舒默"
+      },
+      {
+       "type": "机构",
+       "name": "民主党"
+      }
+     ],
+     "sources": [
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/12/nx-s1-6039357/chris-van-hollen-chuck-schumer-senate-majority-leader"
+      }
+     ]
+    },
+    {
+     "zh": "纽约布鲁克林楼房坍塌致八人死亡",
+     "en": "Brooklyn building collapse kills eight",
+     "body": "布鲁克林一栋住宅楼周三倒向相邻的建筑工地，至少八人死亡，包括两名儿童和两名建筑工人。市长曼达尼称赞救援人员的英勇。",
+     "body_en": "A residential building in Brooklyn fell into an adjacent construction site on Wednesday, killing at least eight people, including two children and two construction workers. Mayor Mamdani praised the responders' heroism.",
+     "ctx": "事发地弗拉特布什是以移民为主的街区，居民对事故感到震惊。起因尚待调查。",
+     "ctx_en": "The Flatbush neighbourhood has many immigrant residents who are shaken by the accident. The cause is still being investigated.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Brooklyn",
+      "building collapse"
+     ],
+     "topics": [
+      "其他"
+     ],
+     "thread": "纽约楼房坍塌",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "曼达尼"
+      },
+      {
+       "type": "机构",
+       "name": "纽约市政府"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/cm20v66jq611o?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/videos/cmvg2lkv0lz9o?at_medium=RSS&at_campaign=rss"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cn",
+   "name": "中国",
+   "nameEn": "China",
+   "en": "CHINA · 外交 / 投资 / 政策",
+   "tz": "Asia/Shanghai",
+   "tzLabel": "北京",
+   "tzLabelEn": "Beijing",
+   "items": [
+    {
+     "zh": "习近平纪念孙中山160周年：愿与台湾“有识之士”对话",
+     "en": "On Sun Yat-sen's 160th anniversary, Xi calls for dialogue with Taiwan's 'people of vision'",
+     "body": "习近平周四在纪念孙中山诞辰160周年的仪式上说，北京愿与岛内各界“有识之士”就统一问题对话，并表示会照顾台湾的现实情况，同时对“台独”分裂持强硬立场。",
+     "body_en": "Speaking on Thursday at a ceremony for the 160th anniversary of Sun Yat-sen's birth, Xi said Beijing is ready to hold dialogue on reunification with 'people of vision' across Taiwan. He pledged to accommodate the island's realities while taking a hard line on separatism.",
+     "ctx": "北京一贯主张统一，并反对台湾独立。近期台海军事动向和各方外交互动都受到关注。",
+     "ctx_en": "Beijing has long pushed for unification and opposes Taiwan independence. Military moves around the strait and diplomatic exchanges have been closely watched recently.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Taiwan",
+      "Xi Jinping",
+      "Sun Yat-sen"
+     ],
+     "topics": [
+      "中国外交",
+      "安全与冲突"
+     ],
+     "thread": "台海军事动向",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "习近平"
+      },
+      {
+       "type": "人物",
+       "name": "孙中山"
+      },
+      {
+       "type": "国家",
+       "name": "中国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/politics/article/3374228/xi-jinping-calls-dialogue-taiwan-reunification-people-vision"
+      }
+     ]
+    },
+    {
+     "zh": "特朗普、习近平、普京三方峰会在讨论中，APEC深圳峰会临近",
+     "en": "Trump-Xi-Putin summit under discussion as APEC Shenzhen nears",
+     "body": "美国确认正在讨论三国元首峰会的可能。国务卿鲁比奥周三与王毅通话谈及此事，特朗普下周将前往亚洲。中国外交部期待APEC会议达成《深圳宣言》，台湾则将派宏碁创办人施振荣出席，并要求获得平等和有尊严的对待。",
+     "body_en": "The US confirmed that a three-way presidential summit is under discussion. Secretary of State Rubio raised it in a call with Wang Yi on Wednesday, and Trump travels to Asia next week. China's foreign ministry hopes APEC will adopt a Shenzhen Declaration, while Taiwan is sending Acer founder Stan Shih and asking for dignified treatment.",
+     "ctx": "此前中美元首会晤一直是外界关注的焦点。APEC是亚太主要经济体的年度领导人会议，今年由中国深圳主办。",
+     "ctx_en": "A US-China leaders' meeting has long been a focus of attention. APEC is the Asia-Pacific economies' annual leaders' summit, hosted this year in Shenzhen.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "APEC",
+      "Trump",
+      "Xi Jinping",
+      "summit"
+     ],
+     "topics": [
+      "中国外交",
+      "贸易与关税"
+     ],
+     "thread": "中美元首会晤",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "特朗普"
+      },
+      {
+       "type": "人物",
+       "name": "习近平"
+      },
+      {
+       "type": "人物",
+       "name": "普京"
+      },
+      {
+       "type": "人物",
+       "name": "王毅"
+      },
+      {
+       "type": "人物",
+       "name": "鲁比奥"
+      }
+     ],
+     "sources": [
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/plus/news/china/diplomacy/article/3374199/trump-xi-putin-summit-under-discussion-us-allies-watch"
+      },
+      {
+       "n": "中国评论",
+       "u": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9DQVU5VDZmR0p1blVoU3NDU1pDc1pvYUdlQVpKODN1eE9mY1JyN1JkTmtZZWY3SmxUak0wR3ppZVhRRXdsdkZ0QXNLU1ZXckJPR1ZGZzdSR08?oc=5"
+      },
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/politics/article/3374140/taiwan-send-acer-founder-stan-shih-shenzhen-apec-calls-equal-footing"
+      }
+     ]
+    },
+    {
+     "zh": "斯洛伐克与中国谋求深化贸易、科技和投资合作",
+     "en": "Slovakia and China seek deeper ties in trade, technology and investment",
+     "body": "据CGTN报道，斯洛伐克与中国表示希望在贸易、科技和投资领域加深合作。",
+     "body_en": "CGTN reports that Slovakia and China want to deepen cooperation in trade, technology and investment.",
+     "ctx": "中东欧国家与中国的经贸往来是中欧关系的一条线索，但欧盟层面对中国投资的审查趋严。",
+     "ctx_en": "Central and eastern European ties with China are one strand of EU-China relations, while EU-level scrutiny of Chinese investment has been tightening.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Slovakia",
+      "China",
+      "investment"
+     ],
+     "topics": [
+      "中欧关系",
+      "对外投资与资本流动"
+     ],
+     "thread": "中欧经贸博弈",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "斯洛伐克"
+      },
+      {
+       "type": "国家",
+       "name": "中国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "CGTN",
+       "u": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOSVVoajgwemM3cWtWRlBuOWtpWjRjbkl1Z0pSQXlsMFJIRXVDbkNNWk1NNEZiaXBpOXZnNGVKbzdzeHB6OWdBdnYzV1VqUFVUeDQtUnRqS0tCZXdrZ0RyX2l5ZjJWT1BMVEVGYUxrdU0zU2VPMnl4cEtyU2MtTVhVR3I5Y2xDODRPVTFISHUzMUQxcWdBeGRFYVNqYnhiNDFpTVZqTlVZY1JjWXVlWkRDaHFjSjFBTG9RTEFCNUFyWVpwdjVfWGFYUDFlQQ?oc=5"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ai",
+   "name": "AI 治理与伦理",
+   "nameEn": "AI Governance",
+   "en": "AI GOVERNANCE",
+   "tz": "",
+   "tzLabel": "全球",
+   "tzLabelEn": "Global",
+   "items": [
+    {
+     "zh": "中美建立AI安全对话机制",
+     "en": "US and China set up an AI safety dialogue",
+     "body": "据报道，中美建立了AI安全对话，华盛顿在合作与竞争之间寻求平衡。报道细节有限。",
+     "body_en": "Reports say the US and China have set up an AI safety dialogue, with Washington trying to balance cooperation against competition. Details in the report are limited.",
+     "ctx": "两国在AI芯片和技术上竞争激烈，同时都在讨论如何管控AI风险。此前中国在国际场合积极推动AI治理倡议。",
+     "ctx_en": "The two countries compete fiercely on AI chips and technology, yet both discuss managing AI risks. China has been active in promoting AI governance initiatives internationally.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "AI safety",
+      "US-China",
+      "dialogue"
+     ],
+     "topics": [
+      "AI治理与监管",
+      "中国外交"
+     ],
+     "thread": "中国AI治理外交",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "中国"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Tekedia",
+       "u": "https://news.google.com/rss/articles/CBMixAFBVV95cUxOQ3VwWHhGdTVpWV9EVGMtRDNWYUgzY2EybktUZENEcFBFbGlmR1J3TWVjS3l5T1B2M1dYTFpVSmtWajJmTk1Fc295dDJiNnJzc0RPVXdDS194RmtGRURRLUlUZ1JiUU1POVFqXy1KaU9TRGFldlBsYXFBdzJGd3RvVFFWcWR6MGVidURlMk9rTE9ES2t0bWZqRU0tY0pLUEVjQnlKNWM4RkZwZVFLemJ4bjlSVWdhaEgyaVlSYzF0QW1saFla?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "法国专家报告建议加强对生成式AI的监管",
+     "en": "French expert report urges tighter rules on generative AI",
+     "body": "据新华社报道，法国一份专家报告建议加强对生成式人工智能的监管，涉及社会运行、心理健康等方面的风险。",
+     "body_en": "Xinhua reports that a French expert report recommends stronger regulation of generative AI, citing risks to social functioning and mental health among others.",
+     "ctx": "欧盟已有《AI法案》，各国也在讨论如何处理生成式AI带来的社会影响。",
+     "ctx_en": "The EU already has the AI Act, and member states are discussing how to handle the social effects of generative AI.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "generative AI",
+      "France",
+      "regulation"
+     ],
+     "topics": [
+      "AI治理与监管",
+      "AI伦理与社会影响"
+     ],
+     "thread": "欧盟AI法案落地",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "法国"
+      },
+      {
+       "type": "人物",
+       "name": "马克龙"
+      }
+     ],
+     "sources": [
+      {
+       "n": "新浪财经",
+       "u": "https://news.google.com/rss/articles/CBMif0FVX3lxTE90NFJOMk9fNFVKWU10U1R0RDhvd3FIQVlGX2FnWjhUS1VITE0xTXMtV0ZrUnExaXlKVzJBTS16bEl2T2R0ZlFaMlpNejBOT20yMzhIWXhEMk9ObVpicTBYWHpteWlIMVJjaXFsSDFjVlV0dGZhNG53d3AxdlpEZWs?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "马来西亚拟立法监管数据中心和先进芯片",
+     "en": "Malaysia weighs new law to monitor data centres and advanced chips",
+     "body": "马来西亚政府正在考虑出台新法律，监管数据中心和先进芯片。",
+     "body_en": "The Malaysian government is considering a new law to monitor data centres and advanced chips.",
+     "ctx": "东南亚是数据中心投资增长较快的地区，芯片流向也受到美国出口管制关注。",
+     "ctx_en": "Southeast Asia has seen fast-growing data centre investment, and chip flows there draw attention under US export controls.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Malaysia",
+      "data centers",
+      "chips"
+     ],
+     "topics": [
+      "AI治理与监管",
+      "科技竞争"
+     ],
+     "thread": "美国AI监管之争",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "马来西亚"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Batam News Asia",
+       "u": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPTEZtY2t0blVsb0pncVNtM0NwbFhTTG1hUVBUOXN1cEFkWjluNXlQR01OZEV5dWFBMG1tMmhZSmkwVE9qTDJubzR3Mjl6Rk5ScUFWbDhrS29rTnVBQzZPUW1IR2tHZ3VfLUtHWEoxdFZjVFJSejVZd0x3WnVnUnhKYXh0dVRQTmFsYlI3aDRPUm9KWGhqRE81X3dJczVONWo3UHlfbEJJbHNZUUd5bUNJLVp6SXFYTEMyRTB6RmRqSE5PQ1A5WWN3Wg?oc=5"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "podcast": {
+  "zh": [
+   {
+    "s": "A",
+    "t": "这里是Dawn晨讯，今天是二〇二六年十一月十三日，星期五。美国特使与普京会谈后，欧洲在乌克兰和谈中获得席位的可能性上升。但由谁出席仍有争执。德国总理默茨说，莫斯科似乎愿意接受欧洲发挥作用，并支持灵活的出席形式。有报道称，他提议由五个国家代表欧洲。泽连斯基欢迎欧洲参与，因为乌克兰希望最终加入欧盟。"
+   },
+   {
+    "s": "B",
+    "t": "此前和谈主要在美国、俄罗斯和乌克兰之间推进，欧洲担心自身的安全利益被绕开。"
+   },
+   {
+    "s": "A",
+    "t": "英伟达首席执行官黄仁勋承认婚外情，已辞去职务，并被传召到国会作证。美方称对方女子是中国间谍，北京回应称，对这一说法已多次表明立场。媒体也在讨论，这是否会危及美国敏感技术的外流。"
+   },
+   {
+    "s": "B",
+    "t": "英伟达是全球领先的人工智能芯片企业，其对华销售一直是中美科技博弈的焦点。"
+   },
+   {
+    "s": "A",
+    "t": "习近平周四在纪念孙中山诞辰一百六十周年的仪式上说，北京愿与台湾的有识之士对话。他同时表示会照顾台湾的现实情况，但对台独分裂持强硬立场。美方确认，正在讨论特朗普、习近平、普京三方峰会的可能。国务卿鲁比奥周三与王毅通话时谈及此事。"
+   },
+   {
+    "s": "A",
+    "t": "特朗普下周将前往亚洲。台湾将派宏碁创办人施振荣出席亚太经合组织峰会，并要求获得平等和有尊严的对待。"
+   },
+   {
+    "s": "B",
+    "t": "亚太经合组织领导人会议今年由中国深圳主办，中国外交部期待会议达成《深圳宣言》。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是比利时。欧盟入境出境系统启用后，布鲁塞尔机场的边检排队问题仍未消除。机场将再增加八个护照检查柜台，以加快旅客通关。"
+   },
+   {
+    "s": "B",
+    "t": "该系统要求非欧盟旅客在外部边境登记指纹和面部信息，取代了手动盖章，多个欧洲机场因此出现排队。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是德国与欧洲。欧盟想遏制订阅陷阱、误导性促销手段，以及让人不停刷屏的设计。关于拟议中的欧盟数字公平法案，布鲁塞尔内部有人认为力度太软，也有人认为管得太多。"
+   },
+   {
+    "s": "B",
+    "t": "该法案属于欧盟加强数字消费者保护的一部分，针对所谓的暗黑模式设计，与现有数字监管框架并行推进。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是世界新闻。加沙卫生部称，以色列的空袭击中加沙南部最大的纳赛尔医院，造成六名巴勒斯坦人死亡。目击者说，导弹击中了设有外科病房和重症监护室的楼体。"
+   },
+   {
+    "s": "B",
+    "t": "加沙医疗系统长期受战事冲击，医院遇袭多次引起国际关注。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是美国。布鲁克林一栋住宅楼周三倒向相邻的建筑工地，至少八人死亡，其中包括两名儿童和两名建筑工人。市长曼达尼称赞救援人员的英勇。"
+   },
+   {
+    "s": "B",
+    "t": "事发地弗拉特布什是以移民居民为主的街区，事故起因尚待调查。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是中国。据中国环球电视网报道，斯洛伐克与中国希望在贸易、科技和投资领域加深合作。"
+   },
+   {
+    "s": "B",
+    "t": "中东欧国家与中国的经贸往来，是中欧关系的一条线索，而欧盟层面对中国投资的审查正在收紧。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是人工智能治理。据新华社报道，法国一份专家报告建议加强对生成式人工智能的监管。报告提到的风险涉及社会运行、心理健康等方面。"
+   },
+   {
+    "s": "B",
+    "t": "欧盟已有《人工智能法案》，各国也在讨论如何应对生成式人工智能带来的社会影响。"
+   },
+   {
+    "s": "A",
+    "t": "以上是今天的Dawn晨讯，感谢收听。"
+   }
+  ],
+  "en": [
+   {
+    "s": "A",
+    "t": "This is Dawn Daily Wire, Friday, November 13, 2026. A European seat at the Ukraine peace talks looks more likely after a US envoy met Putin. Who will fill it is still disputed. German Chancellor Merz says Moscow seems willing to accept a European role, and he backs a flexible format. Reports say he has proposed five countries to represent Europe."
+   },
+   {
+    "s": "A",
+    "t": "Zelensky welcomes European involvement, since Ukraine hopes to join the EU eventually."
+   },
+   {
+    "s": "B",
+    "t": "Until now the talks mostly ran between the United States, Russia and Ukraine, and Europeans feared their security interests would be sidelined."
+   },
+   {
+    "s": "A",
+    "t": "Nvidia chief executive Jensen Huang has resigned after admitting an extramarital affair, and he has been summoned to testify before Congress. The US says the woman involved is a Chinese spy, and Beijing says it has already stated its position on those claims several times. Commentators are asking whether sensitive US technology is now at risk, and some fear a revival of China Initiative-style suspicion."
+   },
+   {
+    "s": "B",
+    "t": "Nvidia is the dominant AI chipmaker, and its China sales have long been central to the US-China tech rivalry."
+   },
+   {
+    "s": "A",
+    "t": "Xi Jinping said on Thursday, at a ceremony marking the 160th anniversary of Sun Yat-sen's birth, that Beijing is ready to talk with people of vision in Taiwan. He pledged to accommodate the island's realities while taking a hard line on separatism. The US confirmed that a three-way summit with Trump, Xi and Putin is under discussion, after Secretary of State Rubio raised it with Wang Yi on Wednesday."
+   },
+   {
+    "s": "A",
+    "t": "Trump travels to Asia next week, and Taiwan is sending Acer founder Stan Shih to the APEC meeting in Shenzhen, asking for dignified treatment."
+   },
+   {
+    "s": "B",
+    "t": "China's foreign ministry hopes the APEC leaders will adopt a Shenzhen Declaration when they meet in Shenzhen this year."
+   },
+   {
+    "s": "A",
+    "t": "Now to Belgium. Queues at Brussels Airport border control have not gone away since the EU's Entry Exit System came into use. The airport will add eight more passport desks to speed up passenger processing."
+   },
+   {
+    "s": "B",
+    "t": "The system requires non-EU travellers to register fingerprints and facial images at the external border, replacing manual stamps, and several European airports have seen queues because of it."
+   },
+   {
+    "s": "A",
+    "t": "Now to Germany and Europe. The EU wants to curb subscription traps, misleading sales tactics and features designed to keep people scrolling. Brussels is split over the proposed Digital Fairness Act, with some saying it is too soft and others saying it goes too far."
+   },
+   {
+    "s": "B",
+    "t": "The act is part of the EU's push for stronger digital consumer protection, aimed at so-called dark patterns, and it runs alongside the existing digital rulebook."
+   },
+   {
+    "s": "A",
+    "t": "Now to the wider world. Gaza's health ministry says an Israeli strike hit Nasser hospital, the largest in southern Gaza, killing six Palestinians. Witnesses say a missile struck a building housing surgical wards and intensive care units."
+   },
+   {
+    "s": "B",
+    "t": "Gaza's health system has been battered by the conflict, and attacks on hospitals have repeatedly drawn international attention."
+   },
+   {
+    "s": "A",
+    "t": "Now to the United States. A residential building in Brooklyn fell into an adjacent construction site on Wednesday, killing at least eight people, including two children and two construction workers. Mayor Mamdani praised the heroism of the responders."
+   },
+   {
+    "s": "B",
+    "t": "The accident happened in Flatbush, a neighbourhood with many immigrant residents, and the cause is still under investigation."
+   },
+   {
+    "s": "A",
+    "t": "Now to China. CGTN reports that Slovakia and China want to deepen cooperation in trade, technology and investment."
+   },
+   {
+    "s": "B",
+    "t": "Ties with central and eastern European countries are one strand of EU-China relations, while EU scrutiny of Chinese investment has been tightening."
+   },
+   {
+    "s": "A",
+    "t": "Finally, on artificial intelligence. Xinhua reports that a French expert report recommends stronger regulation of generative AI. The risks it cites include effects on social functioning and mental health."
+   },
+   {
+    "s": "B",
+    "t": "The EU already has an AI Act, and member states are now discussing how to handle the social effects of generative AI."
+   },
+   {
+    "s": "A",
+    "t": "That is all for this morning's Dawn Daily Wire. Thanks for listening."
+   }
+  ]
+ },
+ "culture": [
+  {
+   "key": "2026-11-26:Thanksgiving Day",
+   "date": "2026-11-26",
+   "en": "Thanksgiving Day",
+   "zh": "感恩节",
+   "countries": [
+    "US"
+   ],
+   "public": true,
+   "countries_zh": [
+    "美国"
+   ],
+   "countries_en": [
+    "US"
+   ]
+  },
+  {
+   "key": "2026-11-29:First Sunday of Advent",
+   "date": "2026-11-29",
+   "en": "First Sunday of Advent",
+   "zh": "将临期第一主日",
+   "countries": [
+    "DE",
+    "BE",
+    "FR",
+    "GB"
+   ],
+   "public": false,
+   "countries_zh": [
+    "德国",
+    "比利时",
+    "法国",
+    "英国"
+   ],
+   "countries_en": [
+    "Germany",
+    "Belgium",
+    "France",
+    "UK"
+   ]
+  }
+ ],
+ "greeting": "brief-2026-11-13-greeting-zh.mp3",
+ "greeting_en": "brief-2026-11-13-greeting-en.mp3",
+ "footer": "本期由 AI 根据各家新闻源整理,摘要为转述,细节以原文为准。",
+ "footer_en": "Compiled with AI from public news feeds. Summaries are paraphrased; check the original articles for detail.",
+ "audio": {
+  "zh": "brief-2026-11-13-zh.mp3",
+  "en": "brief-2026-11-13-en.mp3"
+ }
+}</script>
+<!-- BRIEF-DATA:END -->
+
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('brief-data').textContent);
+  var $ = function(id){return document.getElementById(id)};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function rich(s){return esc(s).replace(/&lt;b&gt;/g,'<b>').replace(/&lt;\/b&gt;/g,'</b>')}
+  var UI = {
+    zh:{top:'今天最该知道的三件事',ag:'接下来要盯的日程',today:' 今天',ctx:'前情提要 · BACKGROUND',src:'来源',deskPlay:'▶ 只听这一版',
+        play:'▶ 朗读全部',pause:'❚❚ 暂停',resume:'▶ 继续',stop:'停止',rate:'语速',idle:'点击朗读,用电脑自带的语音播报全部内容',
+        reading:'正在朗读',stopped:'已停止。点击朗读重新开始',edition:'每日 07:00 布鲁塞尔时间更新',at:'出刊时 ',
+        foot:'本期由 AI 根据各家新闻源整理,摘要为转述,细节以原文为准。朗读使用你设备自带的语音;用 Edge 打开时中英文语音最自然。'},
+    en:{top:'Three things to know today',ag:'Coming up',today:' today',ctx:'BACKGROUND · 前情提要',src:'Sources',deskPlay:'▶ Play this desk',
+        play:'▶ Read all',pause:'❚❚ Pause',resume:'▶ Resume',stop:'Stop',rate:'Speed',idle:'Press play to hear the whole brief with your device voices',
+        reading:'Now reading',stopped:'Stopped. Press play to start again',edition:'Updated daily at 07:00 Brussels time',at:'At press time ',
+        foot:'Compiled with AI from public news feeds. Summaries are paraphrased; check the original articles for detail. Read-aloud uses your device voices; Edge has the most natural ones.'}
+  };
+  var mode='both';
+  try{var m=localStorage.getItem('brief-lang'); if(m==='zh'||m==='en'||m==='both') mode=m;}catch(e){}
+  var ed = new Date(D.editionTime);
+  function hm(tz){try{return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:tz}).format(ed)}catch(e){return '--:--'}}
+
+  function cultureHtml(L, showZh, showEn){
+    var C=D.culture||[]; if(!C.length) return '';
+    var en=mode==='en', t0=new Date(D.edition+'T12:00:00');
+    var wdz=['周日','周一','周二','周三','周四','周五','周六'], wde=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    function md(iso){return iso.slice(5)}
+    var h='<section class="desk" id="culture"><div class="desk-head"><h2>'+(en?'Holidays':'节日与假期')+'<small>HOLIDAYS · '+(en?'NEXT 3 WEEKS':'未来三周')+'</small></h2>'+
+      ''+'</div><div class="cult-list">';
+    C.forEach(function(x,i){
+      var d=new Date(x.date+'T12:00:00'), days=Math.round((d-t0)/864e5);
+      var rel = days===0?(en?'today':'今天'):days===1?(en?'tomorrow':'明天'):(en?'in '+days+' days':days+' 天后');
+      var when='<div class="when">'+md(x.date)+(x.end?'~'+md(x.end):'')+'<small>'+(en?wde[d.getDay()]:wdz[d.getDay()])+' · <span class="'+(days<=2?'soon':'')+'">'+rel+'</span></small></div>';
+      var nmMain = en? x.en : x.zh, nmAlt = en? x.zh : x.en;
+      var ccs=(en?x.countries_en:x.countries_zh)||x.countries||[];
+      var body='';
+      if(showZh&&x.intro) body+='<p>'+esc(x.intro)+'</p>';
+      if(showEn&&x.intro_en) body+='<p lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(x.intro_en)+'</p>';
+      var tip='';
+      if(showZh&&x.tips) tip+='<div>'+esc(x.tips)+'</div>';
+      if(showEn&&x.tips_en) tip+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(x.tips_en)+'</div>';
+      h+='<article class="hol" id="h-'+i+'">'+when+'<div class="what"><div class="name">'+esc(nmMain)+(nmAlt&&nmAlt!==nmMain?'<span class="alt">'+esc(nmAlt)+'</span>':'')+'</div>'+
+        '<div class="meta">'+(x.public?'<span class="off">'+(en?'Public holiday':'法定假日')+'</span>':'')+ccs.map(function(c){return '<span class="cc">'+esc(c)+'</span>'}).join('')+'</div>'+
+        body+(tip?'<div class="tip"><b>'+(en?'Tip':'实用提示')+'</b> '+tip+'</div>':'')+'</div></article>';
+    });
+    return h+'</div></section>';
+  }
+
+  function render(){
+    var L = UI[mode==='en'?'en':'zh'], showZh = mode!=='en', showEn = mode!=='zh';
+    document.documentElement.lang = mode==='en'?'en':'zh-CN';
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed', b.dataset.lang===mode)});
+    var dt=new Date(D.edition+'T12:00:00');
+    var wk = mode==='en' ? dt.toLocaleDateString('en-GB',{weekday:'long'}) : '星期'+['日','一','二','三','四','五','六'][dt.getDay()];
+    $('dateline').textContent = D.edition.replace(/-/g,' · ')+'  '+wk+'  ·  '+L.edition;
+    var zones=[['布鲁塞尔','Brussels','Europe/Brussels'],['伦敦','London','Europe/London'],['华盛顿','Washington','America/New_York'],['北京','Beijing','Asia/Shanghai']];
+    $('clocks').innerHTML = L.at + zones.map(function(z){return (mode==='en'?z[1]:z[0])+' <b>'+hm(z[2])+'</b>'}).join('  ');
+    $('top-h').textContent=L.top; $('ag-h').textContent=L.ag;
+    $('top').innerHTML = D.top.map(function(t,i){
+      var en=(D.top_en||[])[i]||'';
+      return '<li><div>'+(showZh?'<span>'+esc(t)+'</span>':'')+(showEn&&en?'<span class="en-line'+(showZh?' sub':'')+'" lang="en">'+esc(en)+'</span>':'')+'</div></li>'}).join('');
+    var todayMD=D.edition.slice(5);
+    $('agenda').innerHTML = D.agenda.map(function(a){
+      var txt = mode==='en'?(a.en||a.t):(mode==='zh'?a.t:a.t+(a.en?'<span class="en-line sub" lang="en">'+esc(a.en)+'</span>':''));
+      if(mode!=='both') txt=esc(txt); else txt=esc(a.t)+(a.en?'<span class="en-line sub" lang="en">'+esc(a.en)+'</span>':'');
+      return '<tr'+(a.d===todayMD?' class="today"':'')+'><td class="d" data-today="'+L.today+'">'+esc(a.d)+'</td><td>'+txt+'</td></tr>'}).join('');
+    var listen = mode==='en' ? 'Listen to ' : '收听';
+    $('toc').innerHTML = '<span class="chip"><a href="#highlights">'+(mode==='en'?'Top stories':'要点')+'</a></span>' +
+      D.desks.map(function(d,di){
+        if(!d.items.length) return '';
+        var nm = esc(mode==='en'?(d.nameEn||d.name):d.name);
+        return '<span class="chip" data-chip="'+di+'"><a href="#'+d.id+'">'+nm+'<small>'+d.items.length+'</small></a>'+
+          '</span>'}).join('');
+    var C=D.culture||[];
+    if(C.length){var cn=mode==='en'?'Holidays':'节日';
+      $('toc').innerHTML += '<span class="chip" data-chip="culture"><a href="#culture">'+cn+'<small>'+C.length+'</small></a>'+
+        '</span>';}
+    var html='';
+    D.desks.forEach(function(d,di){
+      var nm = mode==='en'?(d.nameEn||d.name):d.name, tzl = mode==='en'?(d.tzLabelEn||d.tzLabel):d.tzLabel;
+      html += '<section class="desk" id="'+d.id+'"><div class="desk-head"><h2>'+esc(nm)+'<small>'+esc(d.en)+'</small></h2>'+
+        '<div class="meta"><span>'+esc(tzl)+(d.tz?' '+hm(d.tz):'')+'</span></div></div>';
+      d.items.forEach(function(it,ii){
+        var h = mode==='en' ? '<h3 lang="en">'+esc(it.en)+'</h3><div class="en">'+esc(it.zh)+'</div>' : '<h3>'+esc(it.zh)+'</h3><div class="en" lang="en">'+esc(it.en)+'</div>';
+        var body='', ctx='', why='';
+        if(showZh){ body+='<p>'+esc(it.body)+'</p>'; ctx+='<div>'+esc(it.ctx)+'</div>'; if(it.why) why+='<div>'+rich(it.why)+'</div>'; }
+        if(showEn&&it.body_en){ body+='<p lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(it.body_en)+'</p>'; ctx+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(it.ctx_en)+'</div>'; if(it.why_en) why+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+rich(it.why_en)+'</div>'; }
+        html += '<article class="item" id="i-'+di+'-'+ii+'">'+h+body+
+          '<div class="ctx"><span class="lab">'+L.ctx+'</span>'+ctx+'</div>'+
+          (why?'<div class="why">'+why+'</div>':'')+
+          '<div class="tags">'+it.tags.map(function(t){return '<span>'+esc(t)+'</span>'}).join('')+'</div>'+
+          '<div class="src">'+L.src+' '+it.sources.map(function(s){return '<a href="'+esc(s.u)+'" target="_blank" rel="noopener">'+esc(s.n)+'</a>'}).join('')+'</div></article>';
+      });
+      html+='</section>';
+    });
+    html += cultureHtml(L, showZh, showEn);
+    $('desks').innerHTML=html;
+    $('foot').textContent = (mode==='en' ? (D.footer_en!=null?D.footer_en:L.foot) : (D.footer!=null?D.footer:L.foot));
+  }
+
+  /* ---------- podcast player ---------- */
+  var A = D.audio || {}, podLang = null;
+  function curPod(){ var l = podLang || (mode==='en' ? 'en' : 'zh'); return A[l] ? l : (A.zh ? 'zh' : (A.en ? 'en' : null)); }
+  function podFile(){ var l = curPod(); return l ? A[l] : null; }
+  document.querySelectorAll('#pod-lang button').forEach(function(b){b.addEventListener('click',function(){ podLang=b.dataset.pl; setPlayer(); })});
+  function setPlayer(){
+    var f=podFile(), el=$('pod');
+    $('pod-lang').hidden = !(A.zh && A.en);
+    document.querySelectorAll('#pod-lang button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.pl===curPod()); });
+    if(!f){ $('player').hidden=true; document.body.style.paddingBottom='24px'; return; }
+    $('player').hidden=false;
+    $('pl-label').textContent = mode==='en' ? "Today's show" : '今日播客';
+    if(el.getAttribute('src')!==f) el.setAttribute('src', f);
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){
+    if(mode===b.dataset.lang) return; mode=b.dataset.lang; podLang=null;
+    try{localStorage.setItem('brief-lang',mode)}catch(e){} render(); setPlayer();
+  })});
+  render(); setPlayer();
+})();
+</script>
+
+</body>
+</html>
