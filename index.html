@@ -1,0 +1,1289 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><script>(function(){var I='2026-11-20';function c(){try{fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(v){if(v&&v.date&&v.date>I&&location.search.indexOf('v='+v.date)<0)location.replace(location.pathname+'?v='+v.date)}).catch(function(){})}catch(e){}}c();addEventListener('pageshow',function(e){if(e.persisted)c()});document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')c()});})();</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dawn 晨讯</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap"></noscript>
+<style>
+/* Layout: a morning wire. Masthead with world clocks, a "today's three" strip, a week agenda, then one column of regional desks; a fixed audio bar reads the whole brief aloud. */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --ink:#121a24; --muted:#586474; --rule:#d3dae2;
+  --accent:#2448b8; --accent-soft:#e3e9fb; --onair:#b97a06; --onair-soft:#fbf0d9;
+  --ctx:#f4f6f9;
+  --f-display:"Noto Serif SC","Songti SC","SimSun",serif;
+  --f-body:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf1; --muted:#93a1b1; --rule:#273341;
+  --accent:#88a3ff; --accent-soft:#1e2a4a; --onair:#f0b43c; --onair-soft:#3a2d12; --ctx:#121a22; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf1; --muted:#93a1b1; --rule:#273341;
+  --accent:#88a3ff; --accent-soft:#1e2a4a; --onair:#f0b43c; --onair-soft:#3a2d12; --ctx:#121a22; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.75;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:780px;margin:0 auto;padding-block:28px 24px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* masthead */
+.mast{display:grid;gap:14px;border-bottom:3px solid var(--ink);padding-bottom:16px}
+.mast h1{font-family:var(--f-display);font-weight:900;font-size:clamp(34px,7vw,52px);line-height:1.05;margin:0;letter-spacing:.02em}
+.mast h1 span{font-family:var(--f-mono);font-weight:600;font-size:.42em;letter-spacing:.12em;color:var(--accent);vertical-align:.55em;margin-left:.4em}
+.dateline{font-family:var(--f-mono);font-size:13px;color:var(--muted);letter-spacing:.04em}
+.clocks{display:flex;flex-wrap:wrap;gap:6px 18px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.clocks b{color:var(--ink);font-weight:600}
+
+/* top three */
+.top{margin-top:18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.top ol{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:t}
+.top li{counter-increment:t;display:grid;grid-template-columns:2.2em 1fr;gap:4px;font-size:17px;line-height:1.6}
+.top li::before{content:counter(t);font-family:var(--f-display);font-weight:900;font-size:26px;line-height:1.1;color:var(--accent)}
+
+/* agenda */
+.agenda{margin-top:22px;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:14px 16px}
+.agenda table{width:100%;border-collapse:collapse;font-size:14px}
+.agenda td{padding:5px 0;vertical-align:top;border-top:1px dashed var(--rule)}
+.agenda tr:first-child td{border-top:0}
+.agenda td.d{font-family:var(--f-mono);white-space:nowrap;padding-right:14px;color:var(--accent);font-variant-numeric:tabular-nums;width:1%}
+.agenda .today td.d::after{content:"";color:var(--onair);font-family:var(--f-body);font-weight:700}
+
+/* sections */
+nav.toc{position:sticky;top:env(safe-area-inset-top,0px);z-index:15;background:var(--bg);border-bottom:1px solid var(--rule);
+  display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-block:10px;margin-top:0}
+nav.toc::-webkit-scrollbar{display:none}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:16;background:var(--bg)}
+.chip{flex:0 0 auto;display:inline-flex;align-items:stretch;border:1px solid var(--rule);background:var(--surface);border-radius:999px;overflow:hidden}
+.chip a{font-size:14px;text-decoration:none;color:var(--ink);padding:5px 6px 5px 12px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.chip a small{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.chip a:only-child{padding-right:12px}
+.chip a{padding-right:12px}
+.player audio{flex:1 1 260px;min-width:0;width:100%;height:40px}
+.pl-label{font-weight:600;font-size:14px;color:var(--ink);white-space:nowrap}
+.pod-lang{display:inline-flex;border:1px solid var(--ink);border-radius:999px;overflow:hidden;flex:0 0 auto}
+.pod-lang button{font:500 13px var(--f-body);background:transparent;color:var(--ink);border:0;padding:3px 10px;cursor:pointer}
+.pod-lang button+button{border-left:1px solid var(--ink)}
+.pod-lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chip button{border:0;border-left:1px solid var(--rule);background:transparent;color:var(--accent);font-size:12px;padding:0 10px;cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip button:hover,.chip.on button{background:var(--accent);color:var(--surface)}
+.chip.on{border-color:var(--accent)}
+section.desk,#highlights{scroll-margin-top:72px}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+section.desk{margin-top:38px}
+.desk-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--ink);padding-bottom:6px}
+.desk-head h2{font-family:var(--f-display);font-weight:900;font-size:26px;margin:0;letter-spacing:.03em}
+.desk-head h2 small{font-family:var(--f-mono);font-weight:400;font-size:12.5px;color:var(--muted);letter-spacing:.08em;margin-left:10px}
+.desk-head .meta{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.btn-mini{font:500 13px var(--f-body);border:1px solid var(--rule);background:var(--surface);color:var(--ink);border-radius:999px;padding:2px 10px;cursor:pointer}
+.btn-mini:hover{border-color:var(--accent);color:var(--accent)}
+
+article.item{padding:18px 0 20px;border-bottom:1px solid var(--rule);display:grid;gap:8px;scroll-margin-top:72px;transition:background .2s}
+article.item.reading{background:var(--onair-soft);box-shadow:-10px 0 0 var(--onair-soft),10px 0 0 var(--onair-soft)}
+article.item h3{font-family:var(--f-display);font-weight:600;font-size:20px;line-height:1.45;margin:0;text-wrap:balance}
+article.item .en{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);line-height:1.5}
+article.item p{margin:0;max-width:65ch}
+.ctx{background:var(--ctx);border-left:3px solid var(--accent);padding:10px 14px;font-size:15px;color:var(--ink);max-width:65ch}
+.ctx .lab{display:block;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.12em;color:var(--accent);margin-bottom:2px}
+.why{font-size:15px;color:var(--muted)}
+.why b{color:var(--ink);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-family:var(--f-mono);font-size:12px;background:var(--accent-soft);color:var(--accent);padding:1px 8px;border-radius:3px}
+.src{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.src a{text-decoration:none;border-bottom:1px solid currentColor}
+
+/* holidays */
+.cult-list{display:grid;gap:0}
+.hol{display:grid;grid-template-columns:6.4em 1fr;gap:4px 14px;padding:14px 0;border-bottom:1px solid var(--rule);scroll-margin-top:72px;transition:background .2s}
+.hol.reading{background:var(--onair-soft);box-shadow:-10px 0 0 var(--onair-soft),10px 0 0 var(--onair-soft)}
+.hol .when{font-family:var(--f-mono);font-size:13px;color:var(--accent);line-height:1.35;font-variant-numeric:tabular-nums}
+.hol .when small{display:block;color:var(--muted);font-size:11.5px}
+.hol .when .soon{color:var(--onair);font-weight:600}
+.hol .what{min-width:0;display:grid;gap:6px}
+.hol .name{font-family:var(--f-display);font-weight:600;font-size:17px;line-height:1.4;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.hol .name .alt{font-family:var(--f-mono);font-weight:400;font-size:12px;color:var(--muted)}
+.hol .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.cc{font-family:var(--f-mono);font-size:11.5px;border:1px solid var(--rule);color:var(--muted);padding:0 6px;border-radius:3px}
+.off{font-size:12px;font-weight:600;color:var(--onair);background:var(--onair-soft);padding:0 8px;border-radius:3px}
+.hol p{margin:0;max-width:65ch;font-size:15px}
+.hol .tip{font-size:14px;color:var(--muted);max-width:65ch}
+.hol .tip b{color:var(--ink);font-weight:500}
+@media (max-width:480px){.hol{grid-template-columns:1fr}.hol .when small{display:inline;margin-left:6px}}
+footer{margin-top:40px;font-size:13px;color:var(--muted);max-width:65ch}
+
+/* player */
+.player{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--rule);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.player-in{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.play{font:700 15px var(--f-body);background:var(--ink);color:var(--bg);border:0;border-radius:999px;padding:8px 18px;cursor:pointer;min-width:7.5em}
+.play.on{background:var(--onair);color:#1a1205}
+.stop{font:500 14px var(--f-body);background:transparent;color:var(--ink);border:1px solid var(--rule);border-radius:999px;padding:7px 14px;cursor:pointer}
+.player select{font:14px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:5px 6px}
+.now{flex:1 1 200px;min-width:0;font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now b{color:var(--onair)}
+.mast-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.lang{display:inline-flex;border:1px solid var(--ink);border-radius:999px;overflow:hidden}
+.lang button{font:500 13px var(--f-body);background:transparent;color:var(--ink);border:0;padding:3px 12px;cursor:pointer}
+.lang button+button{border-left:1px solid var(--ink)}
+.lang button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.en-line{display:block}
+.sub{color:var(--muted);font-size:.92em}
+.en-p{max-width:65ch;line-height:1.65}
+p.en-p{margin:0}
+.ctx .en-p.sub{margin-top:8px;padding-top:8px;border-top:1px dashed var(--rule)}
+.why .en-p.sub{margin-top:2px}
+.top li .sub{font-size:15px;margin-top:2px}
+.agenda .today td.d::after{content:attr(data-today)}
+.agenda td .sub{font-size:13px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media (max-width:480px){.desk-head h2{font-size:22px} article.item h3{font-size:18px}}
+</style>
+
+<style>
+body{margin:0}
+.audio-files{margin-top:22px;display:grid;gap:8px}
+.audio-files .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.audio-files .row span{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;color:var(--muted);min-width:4em}
+.audio-files audio{flex:1 1 240px;max-width:100%}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-top"><div class="dateline" id="dateline"></div><div class="lang" role="group" aria-label="Language 语言"><button type="button" data-lang="zh">中文</button><button type="button" data-lang="both">双语</button><button type="button" data-lang="en">EN</button></div></div>
+    <h1>Dawn 晨讯<span>DAILY WIRE</span></h1>
+    <div class="clocks" id="clocks" aria-label="出刊时各地时间"></div>
+  </header>
+  <nav class="toc" id="toc" aria-label="版块导航 Sections"></nav>
+
+  <section class="top" id="highlights" aria-labelledby="top-h">
+    <div class="eyebrow" id="top-h"></div>
+    <ol id="top"></ol>
+  </section>
+
+  <section class="agenda" aria-labelledby="ag-h">
+    <div class="eyebrow" id="ag-h" style="margin-bottom:6px"></div>
+    <table><tbody id="agenda"></tbody></table>
+  </section>
+
+  
+  <main id="desks"></main>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="player" role="region" aria-label="播客 Podcast" id="player" hidden>
+  <div class="player-in">
+    <span class="pl-label" id="pl-label">今日播客</span>
+    <div class="pod-lang" id="pod-lang" role="group" aria-label="播客语言 Podcast language"><button type="button" data-pl="zh">中文</button><button type="button" data-pl="en">EN</button></div>
+    <audio id="pod" controls preload="none"></audio>
+  </div>
+</div>
+
+<!-- BRIEF-DATA:START -->
+<script id="brief-data" type="application/json">{
+ "edition": "2026-11-20",
+ "editionTime": "2026-11-20T07:00:00+01:00",
+ "top": [
+  "习近平、特朗普、普京在深圳举行史上首次三方会晤，默茨批评这是「雅尔塔式」安排，要求欧洲和乌克兰有席位。",
+  "英国与欧盟在布鲁塞尔峰会上准备签署青年流动、食品贸易和能源碳排放协议，推动关系重启。",
+  "特朗普称与习近平同意在AI安全规则上合作，同时又反对「全球主义」式的AI监管。"
+ ],
+ "top_en": [
+  "Xi, Trump and Putin held their first-ever trilateral summit in Shenzhen, while Merz warned against a 'Yalta-style' deal and asked for seats for Europe and Ukraine.",
+  "The UK and EU are set to sign deals on youth mobility, food trade and energy and carbon at a Brussels summit, aiming to reset relations.",
+  "Trump says he and Xi agree to work on AI safety rules, even as he rejects 'globalist' AI regulation."
+ ],
+ "agenda": [
+  {
+   "d": "11-26",
+   "t": "美国感恩节",
+   "en": "US Thanksgiving Day"
+  }
+ ],
+ "desks": [
+  {
+   "id": "be",
+   "name": "比利时",
+   "nameEn": "Belgium",
+   "en": "BELGIUM",
+   "tz": "Europe/Brussels",
+   "tzLabel": "布鲁塞尔",
+   "tzLabelEn": "Brussels",
+   "items": [
+    {
+     "zh": "英欧布鲁塞尔峰会:青年流动、食品与能源协议待签",
+     "en": "UK-EU Brussels summit: youth mobility, food and energy deals due",
+     "body": "英国首相安迪·伯纳姆(Andy Burnham)今天到布鲁塞尔与冯德莱恩等欧盟领导人会面。预计双方将批准青年流动计划,并就食品贸易和碳排放达成新安排,新协议也应减轻「爱尔兰海边界」的影响。伯纳姆希望在小船偷渡问题上取得「很大突破」。英国小报称欧盟要价约4.5亿英镑,这一说法来自单一媒体,尚待官方确认。",
+     "body_en": "British Prime Minister Andy Burnham is in Brussels today to meet Ursula von der Leyen and other EU leaders. A youth mobility scheme is expected to be approved, along with new deals on food trade and carbon emissions, and the package should ease the impact of the Irish Sea border. Burnham hopes for a big win on small-boat crossings. One UK outlet says the EU wants about £450m for the deal, a claim not yet confirmed officially.",
+     "ctx": "英国2016年公投决定脱欧,2020年正式离开欧盟。近年伦敦多次表示愿意在部分政策上向欧盟靠拢,本次峰会被视为这一重启进程的新一步。",
+     "ctx_en": "Britain voted to leave the EU in 2016 and left in 2020. London has repeatedly signalled it wants closer alignment on some policies, and this summit is seen as the next step in that reset.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "UK-EU",
+      "Brexit",
+      "youth mobility",
+      "SPS"
+     ],
+     "topics": [
+      "中国外交",
+      "贸易与关税",
+      "移民与边境"
+     ],
+     "thread": "英欧关系",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "安迪·伯纳姆"
+      },
+      {
+       "type": "人物",
+       "name": "冯德莱恩"
+      },
+      {
+       "type": "机构",
+       "name": "欧盟"
+      },
+      {
+       "type": "国家",
+       "name": "英国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Al Jazeera",
+       "u": "https://www.aljazeera.com/news/2026/11/20/eu-and-britain-to-agree-steps-towards-relations-reset?traffic_source=rss"
+      },
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/c623j4kpg94go?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "AOL.co.uk",
+       "u": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQY2pXRjJuOUNGMmlvRFNRaHF5dkFkMzdOTXBlSm1OMTV1cWlwb1d1ZkprbTVKdmVKblROazNrX2V4aW56Z1lKemJIeDhkcVAxZTRlVmRCb05GeG5tRWY5a3hFUm5QWW02OVVZMHl3X3RMQk1NeTFpMVlmblhKSVM5OWVFQ004dE1zOHVhbFpR?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "韩国贸易协会在布鲁塞尔设立欧盟监管应对窗口",
+     "en": "Korean trade body opens EU regulatory response channel in Brussels",
+     "body": "韩国国际贸易协会(KITA)在布鲁塞尔举办韩欧政策伙伴论坛,并设立应对欧盟监管的渠道。重点是减轻碳边境调节机制(CBAM)和《产业加速法》(IAA)给韩国企业带来的负担。",
+     "body_en": "The Korea International Trade Association (KITA) held a Korea-EU policy partnership forum in Brussels and opened a channel for dealing with EU regulation. It focuses on easing the burden of the carbon border adjustment mechanism (CBAM) and the Industrial Accelerator Act (IAA) on Korean firms.",
+     "ctx": "欧盟近年用碳关税和本土产业优先条款加强贸易与产业政策,第三国企业需要提前适应。",
+     "ctx_en": "The EU has been tightening trade and industrial policy through carbon border pricing and local-content preferences, and third-country firms must adapt early.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "CBAM",
+      "IAA",
+      "Korea-EU"
+     ],
+     "topics": [
+      "贸易与关税",
+      "产业政策与补贴"
+     ],
+     "thread": "欧盟产业补贴",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "韩国国际贸易协会"
+      },
+      {
+       "type": "机构",
+       "name": "欧盟"
+      },
+      {
+       "type": "法规",
+       "name": "碳边境调节机制"
+      },
+      {
+       "type": "法规",
+       "name": "产业加速法"
+      }
+     ],
+     "sources": [
+      {
+       "n": "아시아경제",
+       "u": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE9fX3lYQ2NfbTVPYXRYSHpzVEwwMjAxZzh6TjU0ZGVMZVNYbTRuN1R2SU0tY3NIbmtvOF9SZW11UDhwVGpxVjJ1ZDRWZU9hWUM5UEZ6UWxhNG40Tm8xTlVqTFFPalBBb24y?oc=5"
+      },
+      {
+       "n": "BigGo Finance",
+       "u": "https://news.google.com/rss/articles/CBMidkFVX3lxTE4tRjNUczFGS25CQnA4andXSWhBVXR0bmFxaU92V1NqQmgyMVlkWnBMRnB0aVNzR3BVNGI1ZlBsLUNkVkpSbVlOd1VIdk1IcnlVN2pSMzVaSEhLemNWdW45RTgzTkRXR0ljUDRwTG1nc1BydGpZZ3c?oc=5"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "de",
+   "name": "德国与欧洲",
+   "nameEn": "Germany & Europe",
+   "en": "GERMANY · DW",
+   "tz": "Europe/Berlin",
+   "tzLabel": "柏林",
+   "tzLabelEn": "Berlin",
+   "items": [
+    {
+     "zh": "默茨:欧洲不接受「雅尔塔2.0」,新一轮乌克兰谈判将让欧洲入席",
+     "en": "Merz: Europe won't accept 'Yalta 2'; new Ukraine talks to include Europe",
+     "body": "约40国「意愿联盟」在柏林举行迄今最大规模峰会,欧洲领导人称立场「一致」,承诺提供更多军援和防空系统。德国总理默茨(Friedrich Merz)称习、特、普三方会晤是「摆拍」,表示欧洲不会接受排除乌克兰的「雅尔塔式」安排。他说包括欧洲在内的新一轮谈判很快会在「中立地点」举行,阿联酋是可能地点之一。",
+     "body_en": "A Coalition of the Willing summit of about 40 countries in Berlin, the largest yet, ended with European leaders claiming a united position and promising more military aid and air defence. Chancellor Friedrich Merz called the Xi-Trump-Putin meeting a photo-op and said Europe will not accept a Yalta-style deal that leaves Ukraine out. He said new talks including Europe will be held soon on neutral ground, with the UAE named as one possible venue.",
+     "ctx": "欧洲此前多次抱怨美俄乌之间的会谈把欧洲排除在外。柏林峰会是欧洲争取谈判席位的最新一步。",
+     "ctx_en": "Europe has repeatedly complained of being sidelined in US-Russia-Ukraine talks. The Berlin summit is its latest push for a seat at the table.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Merz",
+      "Coalition of the Willing",
+      "Yalta"
+     ],
+     "topics": [
+      "安全与冲突",
+      "中国外交"
+     ],
+     "thread": "乌克兰和谈",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "默茨"
+      },
+      {
+       "type": "机构",
+       "name": "意愿联盟"
+      },
+      {
+       "type": "国家",
+       "name": "德国"
+      },
+      {
+       "type": "国家",
+       "name": "乌克兰"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/new-ukraine-talks-including-europe-to-be-held-soon-merz/a-79997961?maca=en-rss-en-all-1573-rdf"
+      },
+      {
+       "n": "Kyiv Post",
+       "u": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9PN3FGLW9DYVh4eXJsMU9MNmVSLS1PZVRjTUhCaWZ5ZUE0TzA1OUZOa0VUSWo3bnRhQjBUUHNmR2pldklQczVZRDBVaw?oc=5"
+      },
+      {
+       "n": "WION",
+       "u": "https://news.google.com/rss/articles/CBMi-AFBVV95cUxOaDhnMktRS2lxeDZ2NUs0UUUwVFdVWDN0dE91bExuaFBlbk8xeWZhc3haVHN0b2ZtdFdDWDlkSkRjWENBaml5QVFjX0JyOGctWmMyOFZ5ZWtuVE1HVkFLaC1FOWJrZjdCV19zTWpXN2xJRlVMM2lBNjJYZi1BV1FfandqQWF0VlRKTUZEUXBuZGRtSk1fbldMNm1aSXEtY0pocXRPbm9sWFNiVVlnZEZSaHU0UEctRnIxUTVTUFFpUW1VYTB1d3ctLU84WmpEclJKRjd3MGYxVTVOZ09sQ2NacGxKZ3F2eUlXdjU0WXREd1NFNmN1R0RYQdIB_gFBVV95cUxOQ1hLZzFra2NZd0NZTnphR3h4QW5US01YUHVabEVEY1pqWVBBZkRld0JfQkotLTlRWGlWaVFMVFJ4aTQtMDZoUFNDRmRSc0hsMGRJeWhrc1BOUm9zUERHbHpQdDFmQ0NYUFUtelpudGotSnEweFBTYmtMcUxjX1ZHbDRRQVA1N1FDNGU5TWt1bVVJZGJmTTFTVThaTU1uOFluM3dwWmNZRzk5VC1SbTRjU1VoYUFya3BzclpkcElqdkRqYTAtR21MOEVZWE0wbEU2Yl9UOVlBWlNCNXpuNGloUVFyLWw0djlMMEFhNlhHbHFCQi0zVFpSNEk0U1drUQ?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "德国青少年罢课抗议征兵,全国集会在今天举行",
+     "en": "German teens protest conscription ahead of nationwide rallies",
+     "body": "德国多地青少年说,他们不希望自己的未来由军队来决定,并为周五的全国性集会做准备。他们反对恢复征兵的做法。",
+     "body_en": "Teenagers across Germany say they do not want their future decided by the military, ahead of nationwide rallies on Friday. They oppose moves to bring back conscription.",
+     "ctx": "德国近年提高国防开支,并讨论扩充兵员,征兵问题成为年轻一代的争议点。",
+     "ctx_en": "Germany has raised defence spending and debated expanding troop numbers, making conscription a sore point for young people.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "conscription",
+      "Germany",
+      "youth protest"
+     ],
+     "topics": [
+      "劳工与抗议",
+      "安全与冲突"
+     ],
+     "thread": "德国社会争议",
+     "entities": [
+      {
+       "type": "国家",
+       "name": "德国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Al Jazeera",
+       "u": "https://www.aljazeera.com/news/2026/11/20/we-dont-want-our-future-decided-by-the-military-young-germans-protest?traffic_source=rss"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "world",
+   "name": "世界",
+   "nameEn": "World",
+   "en": "WORLD · BBC",
+   "tz": "Europe/London",
+   "tzLabel": "伦敦",
+   "tzLabelEn": "London",
+   "items": [
+    {
+     "zh": "俄军导弹袭击基辅,三座桥梁受损",
+     "en": "Russian missiles hit three Kyiv bridges",
+     "body": "俄罗斯对基辅发动大规模导弹袭击,三座桥梁被击中,至少5人死亡。这轮袭击发生在乌克兰成功打击克里米亚大桥之后。普京此前誓言作出「痛苦得多」的回应。",
+     "body_en": "Russia launched a major missile attack on Kyiv, hitting three bridges and killing at least five people. The strikes follow Ukraine's successful attack on the Crimean Bridge. Putin had vowed a far more painful response.",
+     "ctx": "克里米亚大桥是俄罗斯占领克里米亚的象征,此次受损后局势升级,正值各方筹备新一轮和谈。",
+     "ctx_en": "The Crimean Bridge is a symbol of Russia's hold on the peninsula. Its damage has escalated the fighting just as new peace talks are being prepared.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Kyiv",
+      "Crimean Bridge",
+      "missile strike"
+     ],
+     "topics": [
+      "安全与冲突"
+     ],
+     "thread": "乌克兰和谈",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "普京"
+      },
+      {
+       "type": "国家",
+       "name": "乌克兰"
+      },
+      {
+       "type": "国家",
+       "name": "俄罗斯"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/c6x29gn4pdn9o?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/cm879dqn3e1jo?at_medium=RSS&at_campaign=rss"
+      }
+     ]
+    },
+    {
+     "zh": "国际法院裁定缅甸对罗兴亚人实施种族灭绝",
+     "en": "ICJ rules Myanmar committed genocide against the Rohingya",
+     "body": "联合国最高司法机构国际法院(ICJ)认定,缅甸安全部队在2017年若开邦北部的军事行动中带有「灭绝种族意图」。裁决认定缅甸犯下种族灭绝罪。",
+     "body_en": "The International Court of Justice (ICJ) found that Myanmar's security forces acted with genocidal intent during the 2017 operations in northern Rakhine state. It ruled that Myanmar committed genocide against the Rohingya.",
+     "ctx": "2017年的军事行动使数十万罗兴亚人逃往孟加拉国。冈比亚随后向国际法院提起诉讼。",
+     "ctx_en": "The 2017 operations drove hundreds of thousands of Rohingya into Bangladesh. The Gambia later brought the case to the ICJ.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "ICJ",
+      "Rohingya",
+      "genocide"
+     ],
+     "topics": [
+      "法治与监管",
+      "安全与冲突"
+     ],
+     "thread": "罗兴亚种族灭绝案",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "国际法院"
+      },
+      {
+       "type": "国家",
+       "name": "缅甸"
+      }
+     ],
+     "sources": [
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/19/g-s1-154340/un-court-myanmar-genocide-rohingya"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "us",
+   "name": "美国",
+   "nameEn": "United States",
+   "en": "UNITED STATES",
+   "tz": "America/New_York",
+   "tzLabel": "华盛顿",
+   "tzLabelEn": "Washington",
+   "items": [
+    {
+     "zh": "民主党中期选举大胜,杰弗里斯获提名角逐众议长",
+     "en": "Democrats' midterm landslide; Jeffries nominated for Speaker",
+     "body": "民主党在众议院选举中得票约56%,共和党约42%,14个百分点的差距是水门事件以来50年最大。众议院民主党团提名杰弗里斯(Hakeem Jeffries)出任议长。不过BBC报道,民主党内部对前进方向仍有分歧。斯科特·科隆成为密西西比州近150年来首位黑人联邦参议员。",
+     "body_en": "Democrats took about 56% of House votes to the Republicans' 42%, a 14-point gap that is the widest for either party in 50 years, since Watergate. House Democrats nominated Hakeem Jeffries for Speaker. The BBC reports the party is still divided on how to move forward. Scott Colom becomes Mississippi's first Black US senator in nearly 150 years.",
+     "ctx": "本月初的中期选举改变了国会权力格局,将影响特朗普政府的立法与对外政策空间。",
+     "ctx_en": "This month's midterms changed the balance of power in Congress, which will shape the Trump administration's room on legislation and foreign policy.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "midterms",
+      "House",
+      "Jeffries"
+     ],
+     "topics": [
+      "选举与政党"
+     ],
+     "thread": "2026美国中期选举",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "杰弗里斯"
+      },
+      {
+       "type": "人物",
+       "name": "斯科特·科隆"
+      },
+      {
+       "type": "机构",
+       "name": "民主党"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/19/nx-s1-6045916/democrats-midterm-house-majority"
+      },
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/articles/c6174edpp5e8o?at_medium=RSS&at_campaign=rss"
+      }
+     ]
+    },
+    {
+     "zh": "法官暂缓特朗普凯旋门与高尔夫球场工程",
+     "en": "Judges pause Trump's arch and golf course, for now",
+     "body": "联邦法官两次推迟特朗普凯旋门的施工,另一名法官要求东波托马克公园保持开放。高尔夫球场改造方案在联邦艺术委员会得到的反馈不一。报道称这些暂停只会持续几天。",
+     "body_en": "A federal judge has twice delayed construction of Trump's arch, and another is keeping East Potomac Park open. The golf course redesign got mixed feedback from a federal arts panel. The holds are expected to last only days.",
+     "ctx": "这些工程是特朗普改造华盛顿地标的计划的一部分,引发了法律与公共空间使用的争议。",
+     "ctx_en": "The projects are part of Trump's plan to reshape Washington landmarks and have raised legal and public-space disputes.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Trump arch",
+      "courts",
+      "Washington"
+     ],
+     "topics": [
+      "法治与监管"
+     ],
+     "thread": "特朗普凯旋门",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "特朗普"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/19/nx-s1-6047151/trump-arch-golf-course-judge-orders"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cn",
+   "name": "中国",
+   "nameEn": "China",
+   "en": "CHINA · 外交 / 投资 / 政策",
+   "tz": "Asia/Shanghai",
+   "tzLabel": "北京",
+   "tzLabelEn": "Beijing",
+   "items": [
+    {
+     "zh": "深圳APEC:习近平、特朗普、普京首次三方会晤",
+     "en": "APEC Shenzhen: first Xi-Trump-Putin trilateral summit",
+     "body": "11月19日,中美俄三国元首在深圳举行三方会晤,议题涉及乌克兰、伊朗和核裁军。特朗普称三人「在创造历史」,习近平称会谈「富有成果」,普京称「坦率开放」。SCMP报道,三方发表了迈向和平的联合声明,内容包括联合国改革和全球能源供应等共识。美国国会民主党人梅克斯质疑特朗普究竟取得了什么。",
+     "body_en": "On November 19 the leaders of China, the US and Russia held a trilateral summit in Shenzhen, with Ukraine, Iran and nuclear disarmament on the agenda. Trump said the three were making history, Xi called the talks fruitful and Putin called them open and candid. SCMP reports a joint declaration towards peace, with consensus on UN reform and global energy supply, among other points. Top House Democrat Gregory Meeks questioned what Trump actually gained.",
+     "ctx": "APEC领导人会议今年由中国主办。三国同为核大国,此前此类三方元首会晤没有先例,欧洲和乌克兰担心被排除在外。",
+     "ctx_en": "China hosts APEC this year. All three are nuclear powers and there was no precedent for such a leaders' meeting. Europe and Ukraine fear being left out.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "APEC",
+      "Shenzhen",
+      "trilateral summit"
+     ],
+     "topics": [
+      "中国外交",
+      "安全与冲突"
+     ],
+     "thread": "中美元首会晤",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "习近平"
+      },
+      {
+       "type": "人物",
+       "name": "特朗普"
+      },
+      {
+       "type": "人物",
+       "name": "普京"
+      },
+      {
+       "type": "机构",
+       "name": "APEC"
+      }
+     ],
+     "sources": [
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/plus/news/china/article/3375154/china-russia-us-trilateral-summit-declaration-towards-peace"
+      },
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/xi-jinping-donald-trump-and-vladimir-putin-have-held-trilateral-talks-―-but-what-did-they-achieve/a-79996668?maca=en-rss-en-all-1573-rdf"
+      },
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/19/nx-s1-6046487/gregory-meeks-trump-xi-putin-summit"
+      }
+     ]
+    },
+    {
+     "zh": "元首会晤数小时后,美国对中国电信与芯片采取行动",
+     "en": "US acts on Chinese telecoms and chips hours after summit",
+     "body": "联邦通信委员会(FCC)投票禁止中国移动等中国运营商直接接入美国电话号码,理由是国家安全,时间在特习会数小时之后。同日,美国众议院外委会公布了中国企业申请购买英伟达和AMD先进AI芯片的保密许可申请。另有报道称,国会要求限制对中国航空业的投资,并敦促联邦航空局不认证中国制造的飞机。",
+     "body_en": "The FCC voted to bar China Mobile and other Chinese carriers from direct access to US phone numbers on national security grounds, just hours after the Trump-Xi talks. The same day a House committee released confidential licence applications from Chinese firms seeking advanced AI chips from Nvidia and AMD. Separately, Congress is reported to be urging investment limits on China's aerospace sector and asking the FAA to deny certification of Chinese-made aircraft.",
+     "ctx": "华盛顿国会对华强硬压力不断上升,与特朗普和习近平的个人关系形成张力。出口管制许可信息通常受保护,公开属不寻常之举。",
+     "ctx_en": "Congressional pressure for a tougher China line is rising and sits in tension with Trump's rapport with Xi. Export-licence data is normally protected, so its release is unusual.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "FCC",
+      "Nvidia",
+      "export controls",
+      "aerospace"
+     ],
+     "topics": [
+      "科技竞争",
+      "对外投资与资本流动",
+      "贸易与关税"
+     ],
+     "thread": "中美科技博弈",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "联邦通信委员会"
+      },
+      {
+       "type": "机构",
+       "name": "中国移动"
+      },
+      {
+       "type": "机构",
+       "name": "英伟达"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/diplomacy/article/3375128/fcc-votes-ban-chinese-telecoms-direct-access-us-phone-numbers"
+      },
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/diplomacy/article/3375135/us-congress-releases-list-chinese-firms-seeking-nvidia-chips"
+      },
+      {
+       "n": "BigGo Finance",
+       "u": "https://news.google.com/rss/articles/CBMidkFVX3lxTE1EdmtqS2VLQTlBdkdpNU5HY1p4TE1iWjdaY1dWeEMzN0lzbkNEaU0xcXByUUp3a2RuMDluTV9BUjU5LXZ3bG9YZXk1VENIMzdaOTR5TUtVQlVXYUxucjhzbUhSZkJjMGVuWTNNVWNxcjZlelE3VGc?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "习近平在深圳密集会见各国领导人",
+     "en": "Xi meets a string of leaders in Shenzhen",
+     "body": "习近平会见澳大利亚总理阿尔巴尼斯,称两国应成为「相互信任的伙伴」,并称关系出现「转折」,阿尔巴尼斯还将会见李强。习近平与新加坡总理黄循财谈话,呼吁成为「创新引领的发展伙伴」并加强东盟内协调。他与印尼总统普拉博沃讨论了未来南海合作。SCMP还分析日本首相高市早苗与习近平握手长达11秒,显示更主动的姿态。",
+     "body_en": "Xi told Australian PM Anthony Albanese the two countries should be partners that trust each other and praised a turnaround in ties; Albanese will also meet Premier Li Qiang. With Singapore's Lawrence Wong, Xi urged innovation-led development partnership and closer coordination in ASEAN. He and Indonesia's Prabowo discussed future South China Sea cooperation. SCMP also notes Japanese PM Sanae Takaichi's 11-second handshake with Xi as a sign of a more proactive approach.",
+     "ctx": "借APEC主场之便,北京密集展开双边外交,稳定与周边和中等强国的关系。",
+     "ctx_en": "Using its APEC host role, Beijing is running dense bilateral diplomacy to steady ties with neighbours and middle powers.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "APEC",
+      "Australia",
+      "ASEAN",
+      "South China Sea"
+     ],
+     "topics": [
+      "中国外交"
+     ],
+     "thread": "南海行为准则",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "习近平"
+      },
+      {
+       "type": "人物",
+       "name": "阿尔巴尼斯"
+      },
+      {
+       "type": "人物",
+       "name": "黄循财"
+      },
+      {
+       "type": "人物",
+       "name": "普拉博沃"
+      },
+      {
+       "type": "人物",
+       "name": "高市早苗"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/china-s-xi-praises-turnaround-in-relationship-with-australia/a-79999229?maca=en-rss-en-all-1573-rdf"
+      },
+      {
+       "n": "SCMP",
+       "u": "https://www.scmp.com/news/china/diplomacy/article/3375196/xi-urges-china-singapore-innovation-partnership-talks-pm-lawrence-wong"
+      },
+      {
+       "n": "The Straits Times",
+       "u": "https://news.google.com/rss/articles/CBMiswFBVV95cUxPQmFJeHJ0LW5yTTZaQTI5N0ZsYnpjV2JlVW53LWhIN2VoUkFCTkZ6Q0FueVBUTXpPUl9IX2pnT3pQcnRGWUFqY09SdkVIazItOFBWVkJjMDZXaWxxNDBDVkpna0xCU0E4cWZKUGwxWHFGQjg2ekJUazdMbmZXT0lHd0VTbUhBS0ZCMDViV1VybUU3eWdCY2RLSnhjN2hmLTJCeHFVWVpQeG53X2s1b05PS3NWMA?oc=5"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ai",
+   "name": "AI 治理与伦理",
+   "nameEn": "AI Governance",
+   "en": "AI GOVERNANCE",
+   "tz": "",
+   "tzLabel": "全球",
+   "tzLabelEn": "Global",
+   "items": [
+    {
+     "zh": "特朗普称与习近平同意在AI安全规则上合作,又反对全球AI监管",
+     "en": "Trump says he and Xi agree on AI safety rules, yet rejects global AI regulation",
+     "body": "特朗普在APEC期间称,习近平希望制定AI安全规则,两国将在监管上合作。另一方面,他表示反对「全球主义」式的AI监管。Euronews的报道把两者对照:习近平呼吁安全合作,特朗普拒绝全球监管。",
+     "body_en": "At APEC Trump said Xi wants AI safety rules and that the two countries will cooperate on regulation. He also said he opposes 'globalist' AI regulation. Euronews contrasts the two positions: Xi calls for safety cooperation while Trump rejects global rules.",
+     "ctx": "中国近年推动多边AI治理倡议,美国政府则强调不设过多限制以保持领先。两国是否能在AI安全上找到交集,仍不明朗。",
+     "ctx_en": "China has pushed multilateral AI governance initiatives, while the US administration stresses light regulation to stay ahead. Whether the two can find common ground on AI safety is still unclear.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "AI safety",
+      "US-China",
+      "Trump",
+      "Xi"
+     ],
+     "topics": [
+      "AI治理与监管",
+      "中国外交",
+      "科技竞争"
+     ],
+     "thread": "美国AI监管之争",
+     "entities": [
+      {
+       "type": "人物",
+       "name": "特朗普"
+      },
+      {
+       "type": "人物",
+       "name": "习近平"
+      },
+      {
+       "type": "国家",
+       "name": "美国"
+      },
+      {
+       "type": "国家",
+       "name": "中国"
+      }
+     ],
+     "sources": [
+      {
+       "n": "Euronews",
+       "u": "https://news.google.com/rss/articles/CBMixAFBVV95cUxNWlJJNXdyTTE4WUxYcVlMdGZrdk5uMUd6bmdBZFBpZmpoUHlaZG45M2laZ2dIdUJQMVpyeFhyaWlYa0p5UFpJdFNjZGtidXRLbkNHX0hxNXpEd3VPaUNVMjJKZ3R4QVpKNkxiWVVIU0N4aE9DSjMzbTlMMVFNbjFSYzY3OS1MUTZQSHJiWW5ReDJZZVpRVWNEci0zNHNhQlRHTWJpOU0wVFB2VmIxWU1Lck5QeXZmQ3IxZnpEVU1ldFlNdWZ5?oc=5"
+      },
+      {
+       "n": "The Times of India",
+       "u": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOQy1nQTRfQWZaT19XVDZXRFp5TFoxamRiaTIzdVlIY1d6LUZzc2dadHVvMDhrMS04NEQ4VHAzSWJlZVFFWWlwQTl5YkV1Zk9HY09GdG85VEg4b2FIMTA2dmNPa3ZBZXhYQldDM0lsMTd2TnNnN05GbXIwQnFHTnhGcnE2YW5MTFduTDd1N0N1Q0t6NnNhcGdVaGhxZGFpYVA4dDZJUlFYVlplSUNVOTJXbWZMbE9lRkkwNjhkQm1YVUJTUzl1YVgxVTZfWTktbC1XSHo2b3pWamIxSTFlbjhqcnhqNA?oc=5"
+      },
+      {
+       "n": "USA Today",
+       "u": "https://news.google.com/rss/articles/CBMiwwFBVV95cUxOWnRHdi1xT1dPeEVzT3lqbjdQSUE2dGpaX0FnQWRXUDVUbFY3cVYyV0l6N3JkZmxOa3hNX240ajFhVmZIbkNtYXEtZHk1d0w5LUUzMjdSbWRCRTFRbnNkdkRvRl9hdUFZQnE1aVJtTmdIc2h2bFZJdmR6a21xbDBjRFpnVU5BdUJkTG5Dbnhrc2VKZzNnbWpla2NmZHRmN0tUWXZNLTkzOTctWVJyek9ITnV1YzZtT3dCWFRLT2pNUm9Ud1E?oc=5"
+      }
+     ]
+    },
+    {
+     "zh": "欧盟委员会确认遭AI辅助网络攻击",
+     "en": "European Commission confirms AI-assisted cyberattack",
+     "body": "欧盟委员会发言人确认,委员会内部系统遭到「AI生成的网络行动」攻击。据DW报道,这是欧盟首次公开通报基于AI的网络攻击。",
+     "body_en": "A European Commission spokesperson confirmed that its internal systems were targeted by an AI-generated cyber campaign. DW reports it is the first time the bloc has publicly reported an AI-based cyberattack.",
+     "ctx": "欧盟已通过《AI法案》规范AI使用,但AI被用于攻击本身,也让网络安全和数字主权议题更为紧迫。",
+     "ctx_en": "The EU has regulated AI use through its AI Act, but AI being used as an attack tool adds urgency to cybersecurity and digital sovereignty debates.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "cyberattack",
+      "European Commission",
+      "AI security"
+     ],
+     "topics": [
+      "AI治理与监管",
+      "法治与监管"
+     ],
+     "thread": "AI智能体安全",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "欧盟委员会"
+      },
+      {
+       "type": "法规",
+       "name": "欧盟AI法案"
+      }
+     ],
+     "sources": [
+      {
+       "n": "The Brussels Times",
+       "u": "https://news.google.com/rss/articles/CBMitgFBVV95cUxPUFZkY1YzVTFuZUNFT1lHeWdUalNVVkN3MW5xSjlrSDlyWE5RVVh6ZkxVdi1KUHFqWExlRl9Mdk9jaEVWQm5HVlZiQ3BUTzMwaVh1aHBCT3F0V2FkZDAtdFVMaG1SUWt3bGg4b1RCVklfaE51bzc5eV9GVDVReVFyY0FwX3h3M0ducWFBbzFhYTl2NUlVUDM1ODQzNk9QUmtlcmNmVVlxVHQzb2xsQ3VIVmRjSDBRdw?oc=5"
+      },
+      {
+       "n": "Deutsche Welle",
+       "u": "https://www.dw.com/en/eu-commission-confirms-it-was-targeted-in-cyberattack-using-ai-tools/a-79993016?maca=en-rss-en-eu-2092-rdf"
+      }
+     ]
+    },
+    {
+     "zh": "Anthropic上市首日收涨17%,民众呼吁加强监管",
+     "en": "Anthropic closes up 17% on debut as public calls for tighter oversight",
+     "body": "Anthropic在美国上市首日股价收涨17%,据报道融资规模创史上最大IPO纪录(各媒体数字不一,NPR称超1000亿美元,中国日报网称超813亿美元)。福布斯估算七位联合创始人身家合计大增至约637亿美元。上市现场有民众呼吁加强对AI企业的监管。",
+     "body_en": "Anthropic shares closed up 17% on their first day of trading in the US, and the offering is reported as the largest IPO ever, though figures differ (NPR says over $100B, China Daily over $81.3B). Forbes estimates the seven co-founders' combined wealth jumped to about $63.7B. Some members of the public at the listing called for stronger regulation of AI firms.",
+     "ctx": "Anthropic由前OpenAI成员创立,长期强调AI安全。上市后将面对股东回报与安全承诺之间的张力。",
+     "ctx_en": "Anthropic was founded by former OpenAI staff and has long stressed AI safety. As a listed company it will face tension between shareholder returns and its safety pledges.",
+     "why": "",
+     "why_en": "",
+     "tags": [
+      "Anthropic",
+      "IPO",
+      "AI regulation"
+     ],
+     "topics": [
+      "AI伦理与社会影响",
+      "AI治理与监管"
+     ],
+     "thread": "Anthropic上市",
+     "entities": [
+      {
+       "type": "机构",
+       "name": "Anthropic"
+      },
+      {
+       "type": "人物",
+       "name": "达里奥·阿莫迪"
+      }
+     ],
+     "sources": [
+      {
+       "n": "BBC News",
+       "u": "https://www.bbc.co.uk/news/videos/cwg7l01vg081o?at_medium=RSS&at_campaign=rss"
+      },
+      {
+       "n": "NPR",
+       "u": "https://www.npr.org/2026/11/19/g-s1-154344/up-first-newsletter-house-democrats-trump-xi-putin-anthropic"
+      },
+      {
+       "n": "中国日报网",
+       "u": "https://news.google.com/rss/articles/CBMifEFVX3lxTE4tc1VrSUQxdzdnQm5vcHk0dC0wUHByX2MwV29EYkF2NHdhdko3OUxIUXh2VnZPTWN3YWxIOUhBWFBMNjZuV2tmREJ1UXJFUmhMV1YyOWkwMU93NXEyeERrbUdYNWx5WnJsbm9GX2pqWC1TWFRteEl0d00zbXA?oc=5"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "podcast": {
+  "zh": [
+   {
+    "s": "A",
+    "t": "这里是 Dawn 晨讯，今天是2026年11月20日，星期五。11月19日，习近平、特朗普和普京在深圳举行了史上首次三方会晤。特朗普称三人正在创造历史，习近平称会谈富有成果，普京则称会谈坦率开放。据南华早报报道，三方发表了迈向和平的联合声明，内容包括联合国改革和全球能源供应等共识。"
+   },
+   {
+    "s": "A",
+    "t": "德国总理默茨则批评这是雅尔塔式的安排，要求欧洲和乌克兰在相关谈判中拥有席位。"
+   },
+   {
+    "s": "B",
+    "t": "三国同为核大国，此前从未有过这样的元首三方会晤。"
+   },
+   {
+    "s": "A",
+    "t": "英国与欧盟将在布鲁塞尔峰会上签署青年流动、食品贸易和能源碳排放等协议，目标是推动双方关系重启。英国首相安迪·伯纳姆今天赴布鲁塞尔，与欧盟委员会主席冯德莱恩等领导人会面。伯纳姆希望在小船偷渡问题上取得很大突破。英国一家小报称欧盟要价约4.5亿英镑，但这一说法只来自单一媒体，尚未得到官方确认。"
+   },
+   {
+    "s": "B",
+    "t": "英国2016年公投决定脱欧，2020年正式离开欧盟，近年伦敦多次表示希望在部分政策上与欧盟靠拢。"
+   },
+   {
+    "s": "A",
+    "t": "在亚太经合组织领导人会议期间，特朗普称习近平希望制定人工智能安全规则，两国将在监管上合作。但他同时表示反对全球主义式的人工智能监管。欧洲媒体Euronews把两者放在一起对照：习近平呼吁安全合作，特朗普则拒绝全球监管。接下来是比利时。韩国国际贸易协会在布鲁塞尔举办了韩欧政策伙伴论坛，并设立了应对欧盟监管的渠道。"
+   },
+   {
+    "s": "A",
+    "t": "重点是减轻碳边境调节机制和产业加速法给韩国企业带来的负担。"
+   },
+   {
+    "s": "B",
+    "t": "欧盟近年通过碳关税和本土产业优先条款加强贸易与产业政策，第三国企业需要提前适应。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是德国与欧洲。约40个国家参加的意愿联盟峰会在柏林举行，规模为迄今最大。欧洲领导人称立场一致，并承诺提供更多军援和防空系统。默茨表示，包括欧洲在内的新一轮乌克兰谈判很快将在中立地点举行，阿联酋是可能的地点之一。"
+   },
+   {
+    "s": "B",
+    "t": "欧洲此前多次抱怨美俄乌之间的会谈把自己排除在外，柏林峰会是争取谈判席位的最新努力。"
+   },
+   {
+    "s": "A",
+    "t": "接下来看世界局势。俄罗斯向基辅发动大规模导弹袭击，三座桥梁被击中，至少五人遇难。这轮袭击发生在乌克兰成功打击克里米亚大桥之后。普京此前曾誓言作出痛苦得多的回应，各方正在筹备新一轮和谈。"
+   },
+   {
+    "s": "B",
+    "t": "克里米亚大桥是俄罗斯控制克里米亚的象征，它受损使局势进一步升级。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是美国。美国中期选举中，民主党得票率约六成，共和党约四成，十四个百分点的差距是水门事件以来五十年最大。众议院民主党团已提名杰弗里斯出任众议长，不过英国广播公司报道，民主党内部对前进方向仍有分歧。在密西西比州，斯科特·科隆成为近一百五十年来首位黑人联邦参议员。"
+   },
+   {
+    "s": "B",
+    "t": "本月的中期选举改变了国会权力格局，将影响特朗普政府在立法和外交政策上的回旋空间。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是中国。特朗普与习近平会谈数小时后，美国联邦通信委员会投票禁止中国移动等中国运营商直接接入美国电话号码，理由是国家安全。同一天，美国众议院外交事务委员会公布了中国企业申请购买英伟达和超威半导体先进人工智能芯片的保密许可申请。"
+   },
+   {
+    "s": "B",
+    "t": "出口许可信息通常受到保护，公开这类材料并不寻常，国会要求强硬应对中国的压力也在上升。"
+   },
+   {
+    "s": "A",
+    "t": "接下来是人工智能治理。欧盟委员会发言人确认，委员会内部系统遭到人工智能生成的网络行动攻击。据德国之声报道，这是欧盟首次公开通报基于人工智能的网络攻击。"
+   },
+   {
+    "s": "B",
+    "t": "欧盟已通过人工智能法案规范相关使用，但人工智能被用作攻击工具，让网络安全和数字主权问题更加紧迫。"
+   },
+   {
+    "s": "A",
+    "t": "最后看节日安排。美国的感恩节在11月第四个星期四，今年是11月26日。人们通常与家人团聚，共享火鸡和南瓜派等传统晚餐，并表达感谢。次日的黑色星期五传统上是节日购物季的开端。在比利时这天是普通工作日，但美国朋友、公司或留学生社群可能会办聚餐。以上就是今天的 Dawn 晨讯，感谢收听。"
+   }
+  ],
+  "en": [
+   {
+    "s": "A",
+    "t": "This is Dawn Daily Wire for Friday, November 20, 2026. Xi Jinping, Donald Trump and Vladimir Putin held their first-ever trilateral summit in Shenzhen on November 19. Trump said the three were making history, Xi called the talks fruitful, and Putin called them open and candid."
+   },
+   {
+    "s": "A",
+    "t": "According to the South China Morning Post, the three issued a joint declaration towards peace, with consensus on UN reform and global energy supply. German Chancellor Friedrich Merz warned against a Yalta-style deal and wants seats for Europe and Ukraine."
+   },
+   {
+    "s": "B",
+    "t": "All three are nuclear powers, and there had been no precedent for a leaders' meeting like this."
+   },
+   {
+    "s": "A",
+    "t": "The UK and EU are set to sign deals on youth mobility, food trade, and energy and carbon at a Brussels summit, aiming to reset relations. British Prime Minister Andy Burnham is meeting Ursula von der Leyen and other EU leaders today. Burnham hopes for a big breakthrough on small-boat crossings. One UK outlet says the EU wants about 450 million pounds for the deal, a claim not yet confirmed officially."
+   },
+   {
+    "s": "B",
+    "t": "Britain left the EU in 2020, and London has repeatedly signalled it wants closer alignment on some policies."
+   },
+   {
+    "s": "A",
+    "t": "At the Asia-Pacific Economic Cooperation summit, Trump said Xi wants AI safety rules and that the two countries will cooperate on regulation. He also said he opposes globalist AI regulation. Euronews sets the two positions side by side: Xi calls for safety cooperation, while Trump rejects global rules."
+   },
+   {
+    "s": "A",
+    "t": "Now to Belgium. The Korea International Trade Association held a Korea-EU policy partnership forum in Brussels and opened a channel for dealing with EU regulation. The focus is easing the burden that the carbon border adjustment mechanism and the Industrial Accelerator Act place on Korean firms."
+   },
+   {
+    "s": "B",
+    "t": "The EU is using carbon border pricing and local-content preferences to tighten trade policy, so third-country firms need to adapt early."
+   },
+   {
+    "s": "A",
+    "t": "Now to Germany and Europe. A Coalition of the Willing summit of about 40 countries in Berlin, the largest yet, ended with European leaders claiming a united position and promising more military aid and air defence. Merz said new talks including Europe will be held soon on neutral ground, with the UAE one possible venue."
+   },
+   {
+    "s": "B",
+    "t": "Europe has repeatedly complained of being sidelined in US, Russia and Ukraine talks, so Berlin is its latest push for a seat at the table."
+   },
+   {
+    "s": "A",
+    "t": "Now to the world. Russia launched a major missile attack on Kyiv, hitting three bridges and killing at least five people. The strikes followed Ukraine's successful attack on the Crimean Bridge. Putin had vowed a far more painful response, as new peace talks are being prepared."
+   },
+   {
+    "s": "B",
+    "t": "The Crimean Bridge is a symbol of Russia's hold on the peninsula, so its damage has escalated the conflict."
+   },
+   {
+    "s": "A",
+    "t": "Now to the United States. Democrats took about 56 percent of the House vote to the Republicans' 42 percent, a 14-point gap that is the widest for either party in 50 years, since Watergate. House Democrats nominated Hakeem Jeffries for Speaker, though the BBC reports the party is still divided on how to move forward. Scott Colom became Mississippi's first Black US senator in nearly 150 years."
+   },
+   {
+    "s": "B",
+    "t": "This month's midterms changed the balance of power in Congress, which will shape the Trump administration's room to maneuver on legislation and foreign policy."
+   },
+   {
+    "s": "A",
+    "t": "Now to China. Just hours after the Trump-Xi talks, the Federal Communications Commission voted to bar China Mobile and other Chinese carriers from direct access to US phone numbers, citing national security. The same day, a House committee released confidential licence applications from Chinese firms seeking advanced AI chips from Nvidia and AMD."
+   },
+   {
+    "s": "B",
+    "t": "Export licence data is normally protected, so releasing it is unusual, and pressure in Congress for a tougher China line is rising."
+   },
+   {
+    "s": "A",
+    "t": "Now to AI governance. A European Commission spokesperson confirmed that its internal systems were targeted by an AI-generated cyber campaign. DW reports it is the first time the bloc has publicly reported an AI-based cyberattack."
+   },
+   {
+    "s": "B",
+    "t": "The EU has regulated AI use through its AI Act, but AI as an attack tool makes cybersecurity and digital sovereignty more urgent."
+   },
+   {
+    "s": "A",
+    "t": "Finally, the holidays. Thanksgiving Day in the US falls on the fourth Thursday of November, which is November 26 this year. Families usually gather for a traditional meal of turkey and pumpkin pie, and give thanks. Black Friday the next day traditionally opens the holiday shopping season. In Belgium it is an ordinary working day, but American friends, companies or student groups may host dinners."
+   },
+   {
+    "s": "A",
+    "t": "That's all for this morning's Dawn Daily Wire. Thanks for listening."
+   }
+  ]
+ },
+ "culture": [
+  {
+   "key": "2026-11-26:Thanksgiving Day",
+   "date": "2026-11-26",
+   "en": "Thanksgiving Day",
+   "zh": "感恩节",
+   "countries": [
+    "US"
+   ],
+   "public": true,
+   "intro": "感恩节是美国的法定假日,在11月的第四个星期四,源于早期移民与原住民分享秋收的传说,后来成为全国性的节日。人们通常与家人团聚,共进火鸡、南瓜派等传统晚餐,并表达感谢。次日的「黑色星期五」是传统的购物季开端。",
+   "intro_en": "Thanksgiving is a US public holiday on the fourth Thursday of November. It traces back to stories of early settlers sharing an autumn harvest with Native peoples, and became a national holiday later. Families gather for a traditional meal of turkey and pumpkin pie and give thanks. Black Friday the next day traditionally opens the holiday shopping season.",
+   "tips": "在比利时这天是普通工作日,但美国朋友、公司或留学生社群可能会办聚餐;次日起各商家的黑色星期五促销也会增多。",
+   "tips_en": "In Belgium it is a normal working day, but American friends, companies or student groups may host dinners, and Black Friday sales start appearing from the next day.",
+   "countries_zh": [
+    "美国"
+   ],
+   "countries_en": [
+    "US"
+   ]
+  },
+  {
+   "key": "2026-11-29:First Sunday of Advent",
+   "date": "2026-11-29",
+   "en": "First Sunday of Advent",
+   "zh": "将临期第一主日",
+   "countries": [
+    "DE",
+    "BE",
+    "FR",
+    "GB"
+   ],
+   "public": false,
+   "countries_zh": [
+    "德国",
+    "比利时",
+    "法国",
+    "英国"
+   ],
+   "countries_en": [
+    "Germany",
+    "Belgium",
+    "France",
+    "UK"
+   ]
+  },
+  {
+   "key": "2026-12-06:St Nicholas Day (Sinterklaas)",
+   "date": "2026-12-06",
+   "en": "St Nicholas Day (Sinterklaas)",
+   "zh": "圣尼古拉斯节",
+   "countries": [
+    "BE",
+    "DE",
+    "FR"
+   ],
+   "public": false,
+   "countries_zh": [
+    "比利时",
+    "德国",
+    "法国"
+   ],
+   "countries_en": [
+    "Belgium",
+    "Germany",
+    "France"
+   ]
+  }
+ ],
+ "greeting": "brief-2026-11-20-greeting-zh.mp3",
+ "greeting_en": "brief-2026-11-20-greeting-en.mp3",
+ "footer": "本期由 AI 根据各家新闻源整理,摘要为转述,细节以原文为准。",
+ "footer_en": "Compiled with AI from public news feeds. Summaries are paraphrased; check the original articles for detail.",
+ "audio": {
+  "zh": "brief-2026-11-20-zh.mp3",
+  "en": "brief-2026-11-20-en.mp3"
+ }
+}</script>
+<!-- BRIEF-DATA:END -->
+
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('brief-data').textContent);
+  var $ = function(id){return document.getElementById(id)};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function rich(s){return esc(s).replace(/&lt;b&gt;/g,'<b>').replace(/&lt;\/b&gt;/g,'</b>')}
+  var UI = {
+    zh:{top:'今天最该知道的三件事',ag:'接下来要盯的日程',today:' 今天',ctx:'前情提要 · BACKGROUND',src:'来源',deskPlay:'▶ 只听这一版',
+        play:'▶ 朗读全部',pause:'❚❚ 暂停',resume:'▶ 继续',stop:'停止',rate:'语速',idle:'点击朗读,用电脑自带的语音播报全部内容',
+        reading:'正在朗读',stopped:'已停止。点击朗读重新开始',edition:'每日 07:00 布鲁塞尔时间更新',at:'出刊时 ',
+        foot:'本期由 AI 根据各家新闻源整理,摘要为转述,细节以原文为准。朗读使用你设备自带的语音;用 Edge 打开时中英文语音最自然。'},
+    en:{top:'Three things to know today',ag:'Coming up',today:' today',ctx:'BACKGROUND · 前情提要',src:'Sources',deskPlay:'▶ Play this desk',
+        play:'▶ Read all',pause:'❚❚ Pause',resume:'▶ Resume',stop:'Stop',rate:'Speed',idle:'Press play to hear the whole brief with your device voices',
+        reading:'Now reading',stopped:'Stopped. Press play to start again',edition:'Updated daily at 07:00 Brussels time',at:'At press time ',
+        foot:'Compiled with AI from public news feeds. Summaries are paraphrased; check the original articles for detail. Read-aloud uses your device voices; Edge has the most natural ones.'}
+  };
+  var mode='both';
+  try{var m=localStorage.getItem('brief-lang'); if(m==='zh'||m==='en'||m==='both') mode=m;}catch(e){}
+  var ed = new Date(D.editionTime);
+  function hm(tz){try{return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',timeZone:tz}).format(ed)}catch(e){return '--:--'}}
+
+  function cultureHtml(L, showZh, showEn){
+    var C=D.culture||[]; if(!C.length) return '';
+    var en=mode==='en', t0=new Date(D.edition+'T12:00:00');
+    var wdz=['周日','周一','周二','周三','周四','周五','周六'], wde=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    function md(iso){return iso.slice(5)}
+    var h='<section class="desk" id="culture"><div class="desk-head"><h2>'+(en?'Holidays':'节日与假期')+'<small>HOLIDAYS · '+(en?'NEXT 3 WEEKS':'未来三周')+'</small></h2>'+
+      ''+'</div><div class="cult-list">';
+    C.forEach(function(x,i){
+      var d=new Date(x.date+'T12:00:00'), days=Math.round((d-t0)/864e5);
+      var rel = days===0?(en?'today':'今天'):days===1?(en?'tomorrow':'明天'):(en?'in '+days+' days':days+' 天后');
+      var when='<div class="when">'+md(x.date)+(x.end?'~'+md(x.end):'')+'<small>'+(en?wde[d.getDay()]:wdz[d.getDay()])+' · <span class="'+(days<=2?'soon':'')+'">'+rel+'</span></small></div>';
+      var nmMain = en? x.en : x.zh, nmAlt = en? x.zh : x.en;
+      var ccs=(en?x.countries_en:x.countries_zh)||x.countries||[];
+      var body='';
+      if(showZh&&x.intro) body+='<p>'+esc(x.intro)+'</p>';
+      if(showEn&&x.intro_en) body+='<p lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(x.intro_en)+'</p>';
+      var tip='';
+      if(showZh&&x.tips) tip+='<div>'+esc(x.tips)+'</div>';
+      if(showEn&&x.tips_en) tip+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(x.tips_en)+'</div>';
+      h+='<article class="hol" id="h-'+i+'">'+when+'<div class="what"><div class="name">'+esc(nmMain)+(nmAlt&&nmAlt!==nmMain?'<span class="alt">'+esc(nmAlt)+'</span>':'')+'</div>'+
+        '<div class="meta">'+(x.public?'<span class="off">'+(en?'Public holiday':'法定假日')+'</span>':'')+ccs.map(function(c){return '<span class="cc">'+esc(c)+'</span>'}).join('')+'</div>'+
+        body+(tip?'<div class="tip"><b>'+(en?'Tip':'实用提示')+'</b> '+tip+'</div>':'')+'</div></article>';
+    });
+    return h+'</div></section>';
+  }
+
+  function render(){
+    var L = UI[mode==='en'?'en':'zh'], showZh = mode!=='en', showEn = mode!=='zh';
+    document.documentElement.lang = mode==='en'?'en':'zh-CN';
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed', b.dataset.lang===mode)});
+    var dt=new Date(D.edition+'T12:00:00');
+    var wk = mode==='en' ? dt.toLocaleDateString('en-GB',{weekday:'long'}) : '星期'+['日','一','二','三','四','五','六'][dt.getDay()];
+    $('dateline').textContent = D.edition.replace(/-/g,' · ')+'  '+wk+'  ·  '+L.edition;
+    var zones=[['布鲁塞尔','Brussels','Europe/Brussels'],['伦敦','London','Europe/London'],['华盛顿','Washington','America/New_York'],['北京','Beijing','Asia/Shanghai']];
+    $('clocks').innerHTML = L.at + zones.map(function(z){return (mode==='en'?z[1]:z[0])+' <b>'+hm(z[2])+'</b>'}).join('  ');
+    $('top-h').textContent=L.top; $('ag-h').textContent=L.ag;
+    $('top').innerHTML = D.top.map(function(t,i){
+      var en=(D.top_en||[])[i]||'';
+      return '<li><div>'+(showZh?'<span>'+esc(t)+'</span>':'')+(showEn&&en?'<span class="en-line'+(showZh?' sub':'')+'" lang="en">'+esc(en)+'</span>':'')+'</div></li>'}).join('');
+    var todayMD=D.edition.slice(5);
+    $('agenda').innerHTML = D.agenda.map(function(a){
+      var txt = mode==='en'?(a.en||a.t):(mode==='zh'?a.t:a.t+(a.en?'<span class="en-line sub" lang="en">'+esc(a.en)+'</span>':''));
+      if(mode!=='both') txt=esc(txt); else txt=esc(a.t)+(a.en?'<span class="en-line sub" lang="en">'+esc(a.en)+'</span>':'');
+      return '<tr'+(a.d===todayMD?' class="today"':'')+'><td class="d" data-today="'+L.today+'">'+esc(a.d)+'</td><td>'+txt+'</td></tr>'}).join('');
+    var listen = mode==='en' ? 'Listen to ' : '收听';
+    $('toc').innerHTML = '<span class="chip"><a href="#highlights">'+(mode==='en'?'Top stories':'要点')+'</a></span>' +
+      D.desks.map(function(d,di){
+        if(!d.items.length) return '';
+        var nm = esc(mode==='en'?(d.nameEn||d.name):d.name);
+        return '<span class="chip" data-chip="'+di+'"><a href="#'+d.id+'">'+nm+'<small>'+d.items.length+'</small></a>'+
+          '</span>'}).join('');
+    var C=D.culture||[];
+    if(C.length){var cn=mode==='en'?'Holidays':'节日';
+      $('toc').innerHTML += '<span class="chip" data-chip="culture"><a href="#culture">'+cn+'<small>'+C.length+'</small></a>'+
+        '</span>';}
+    var html='';
+    D.desks.forEach(function(d,di){
+      var nm = mode==='en'?(d.nameEn||d.name):d.name, tzl = mode==='en'?(d.tzLabelEn||d.tzLabel):d.tzLabel;
+      html += '<section class="desk" id="'+d.id+'"><div class="desk-head"><h2>'+esc(nm)+'<small>'+esc(d.en)+'</small></h2>'+
+        '<div class="meta"><span>'+esc(tzl)+(d.tz?' '+hm(d.tz):'')+'</span></div></div>';
+      d.items.forEach(function(it,ii){
+        var h = mode==='en' ? '<h3 lang="en">'+esc(it.en)+'</h3><div class="en">'+esc(it.zh)+'</div>' : '<h3>'+esc(it.zh)+'</h3><div class="en" lang="en">'+esc(it.en)+'</div>';
+        var body='', ctx='', why='';
+        if(showZh){ body+='<p>'+esc(it.body)+'</p>'; ctx+='<div>'+esc(it.ctx)+'</div>'; if(it.why) why+='<div>'+rich(it.why)+'</div>'; }
+        if(showEn&&it.body_en){ body+='<p lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(it.body_en)+'</p>'; ctx+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+esc(it.ctx_en)+'</div>'; if(it.why_en) why+='<div lang="en" class="en-p'+(showZh?' sub':'')+'">'+rich(it.why_en)+'</div>'; }
+        html += '<article class="item" id="i-'+di+'-'+ii+'">'+h+body+
+          '<div class="ctx"><span class="lab">'+L.ctx+'</span>'+ctx+'</div>'+
+          (why?'<div class="why">'+why+'</div>':'')+
+          '<div class="tags">'+it.tags.map(function(t){return '<span>'+esc(t)+'</span>'}).join('')+'</div>'+
+          '<div class="src">'+L.src+' '+it.sources.map(function(s){return '<a href="'+esc(s.u)+'" target="_blank" rel="noopener">'+esc(s.n)+'</a>'}).join('')+'</div></article>';
+      });
+      html+='</section>';
+    });
+    html += cultureHtml(L, showZh, showEn);
+    $('desks').innerHTML=html;
+    $('foot').textContent = (mode==='en' ? (D.footer_en!=null?D.footer_en:L.foot) : (D.footer!=null?D.footer:L.foot));
+  }
+
+  /* ---------- podcast player ---------- */
+  var A = D.audio || {}, podLang = null;
+  function curPod(){ var l = podLang || (mode==='en' ? 'en' : 'zh'); return A[l] ? l : (A.zh ? 'zh' : (A.en ? 'en' : null)); }
+  function podFile(){ var l = curPod(); return l ? A[l] : null; }
+  document.querySelectorAll('#pod-lang button').forEach(function(b){b.addEventListener('click',function(){ podLang=b.dataset.pl; setPlayer(); })});
+  function setPlayer(){
+    var f=podFile(), el=$('pod');
+    $('pod-lang').hidden = !(A.zh && A.en);
+    document.querySelectorAll('#pod-lang button').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.pl===curPod()); });
+    if(!f){ $('player').hidden=true; document.body.style.paddingBottom='24px'; return; }
+    $('player').hidden=false;
+    $('pl-label').textContent = mode==='en' ? "Today's show" : '今日播客';
+    if(el.getAttribute('src')!==f) el.setAttribute('src', f);
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){
+    if(mode===b.dataset.lang) return; mode=b.dataset.lang; podLang=null;
+    try{localStorage.setItem('brief-lang',mode)}catch(e){} render(); setPlayer();
+  })});
+  render(); setPlayer();
+})();
+</script>
+
+</body>
+</html>
